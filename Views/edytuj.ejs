@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <%include head.ejs%>
+        <title>Edytuj tytuł</title>
+</head>
+
+<body>
+    <%include navbar.ejs%>
+        <div class="container body-content">
+            <div class="ibox">
+                <div class="row">
+                    <form class="form form-horizontal" method="POST" action="/zapisz">
+                        <input class="form-control" type="hidden" name="id" value="<%=id %>">
+                        <input class="form-control" type="text" name="nazwa" value="<%=nazwa %>">
+                        <input class="button button-primary" type="submit">
+                    </form>
+                </div>
+            </div>
+        </div>
+        <%include scripts.ejs%>
+</body>
+
+</html>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <%include head.ejs%>
+        <title>
+            <%=tytul%>
+        </title>
+</head>
+
+<body>
+    <%include navbar.ejs%>
+        <div class="container body-content">
+            <div class="ibox">
+                <table class="table table-striped">
+                    <tr>
+                        <th>Nazwa</th>
+                        <th>Akcje</th>
+                    </tr>
+                    <% for(var i = 0; i < testy.length; i++) { %>
+                        <tr>
+                            <td>
+                                <%=testy[i].nazwa %>
+                            </td>
+                            <td>
+                                <a href="test/<%=testy[i].id%>">Wyniki</a>
+                                <a href="edytuj/<%=testy[i].id%>">Edytuj</a>
+                            </td>
+                        </tr>
+                        <% } %>
+                </table>
+            </div>
+        </div>
+        <%include scripts.ejs%>
+</body>
+
+</html>
