@@ -3,7 +3,7 @@
 
 <head>
     <%include head.ejs%>
-        <title>Edytuj tytuł</title>
+        <title>Dodaj test</title>
 </head>
 
 <body>
@@ -12,8 +12,7 @@
             <div class="ibox">
                 <div class="row">
                     <form class="form form-horizontal" method="POST" action="/zapisz">
-                        <input class="form-control" type="hidden" name="id" value="<%=id %>">
-                        <input class="form-control" type="text" name="nazwa" value="<%=nazwa %>">
+                        <input class="form-control" type="text" name="nazwa" value="">
                         <input class="button button-primary" type="submit">
                     </form>
                 </div>

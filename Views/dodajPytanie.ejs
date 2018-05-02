@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <%include head.ejs%>
+        <title>Dodaj pytania</title>
+</head>
+
+<body>
+    <%include navbar.ejs%>
+        <div class="container body-content">
+            <div class="ibox">
+                <div class="row">
+                    <form class="form form-horizontal" method="POST" action="/zapiszPytanie">
+                <input type="hidden" value="<%=idTestu%>" name="idTestu">
+                        <input type="text" value="" name="tresc">
+                        <input type="submit" value="Dodaj" name="dodaj">
+                    </form>
+<a href="/">Zakończ</a>
+                </div>
+            </div>
+        </div>
+        <%include scripts.ejs%>
+</body>
+
+</html>

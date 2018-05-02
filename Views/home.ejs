@@ -24,11 +24,13 @@
                             </td>
                             <td>
                                 <a href="test/<%=testy[i].id%>">Wyniki</a>
-                                <a href="edytuj/<%=testy[i].id%>">Edytuj</a>
                             </td>
                         </tr>
                         <% } %>
                 </table>
+                <div class="row">
+                    <a href="/dodajTest" class="button">Dodaj nowy test</a>
+                </div>
             </div>
         </div>
         <%include scripts.ejs%>
