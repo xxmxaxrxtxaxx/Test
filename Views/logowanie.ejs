@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <%include head.ejs%>
+        <title>Logowanie</title>
+</head>
+
+<body>
+    <%include navbar.ejs%>
+        <div class="container body-content">
+            <div class="row">
+            <form action="/Login" method="post">
+                <div class="form-horizontal">
+                    <h4>Logowanie</h4>
+                    <div class="form-group">
+                        <label class="control-label col-md-3" for="Nazwa">Nazwa Użytkownika</label>
+                        <div class="col-md-4">
+                            <input class="form-control" data-val="true" data-val-required="nazwa jest wymagana." id="nazwa" name="nazwa"
+                                type="text" value="">
+                            <span class="field-validation-valid text-danger" data-valmsg-for="nazwa" data-valmsg-replace="true"></span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-md-3" for="haslo">Hasło</label>
+                        <div class="col-md-4">
+                            <input class="form-control" data-val="true" data-val-required="haslo jest wymagane." id="haslo" name="haslo" type="password">
+                            <span class="field-validation-valid text-danger" data-valmsg-for="haslo" data-valmsg-replace="true"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-offset-3">
+                        <div class="validation-summary-valid text-danger" data-valmsg-summary="true">
+                            <ul>
+                                <li style="display:none"></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <input class="btn btn-default col-md-offset-3" type="submit" value="Zaloguj">
+            </form>
+        </div>
+            
+        </div>
+</body>
+
+</html>

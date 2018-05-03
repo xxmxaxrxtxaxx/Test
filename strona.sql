@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Czas generowania: 02 Maj 2018, 00:42
+-- Czas generowania: 02 Maj 2018, 21:37
 -- Wersja serwera: 10.1.31-MariaDB
 -- Wersja PHP: 7.2.4
 
@@ -19,77 +19,51 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Baza danych: `strona`
+-- Baza danych: `bazatestow`
 --
 
 -- --------------------------------------------------------
 
 --
--- Struktura tabeli dla tabeli `odpotw_studenta`
+-- Struktura tabeli dla tabeli `odpowiedzi`
 --
 
-CREATE TABLE `odpotw_studenta` (
+CREATE TABLE `odpowiedzi` (
   `id` int(11) NOT NULL,
-  `id_pytania` int(11) NOT NULL,
-  `tresc` text COLLATE utf8_polish_ci NOT NULL,
-  `nr_indeksu` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_polish_ci;
+  `id_rozwiazania` int(11) NOT NULL,
+  `id_wariantu` int(11) DEFAULT NULL,
+  `odpowiedz_otw` varchar(1000) DEFAULT NULL,
+  `zdobyte_pkt` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
 --
--- Struktura tabeli dla tabeli `odpzam_studenta`
+-- Struktura tabeli dla tabeli `pytania`
 --
 
-CREATE TABLE `odpzam_studenta` (
-  `id` int(11) NOT NULL,
-  `id_pytania` int(11) NOT NULL,
-  `odp_studenta` text COLLATE utf8_polish_ci NOT NULL,
-  `nr_indeksu` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_polish_ci;
-
--- --------------------------------------------------------
-
---
--- Struktura tabeli dla tabeli `pytania_otw`
---
-
-CREATE TABLE `pytania_otw` (
+CREATE TABLE `pytania` (
   `id` int(11) NOT NULL,
   `id_testu` int(11) NOT NULL,
-  `tresc` text COLLATE utf8_polish_ci NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_polish_ci;
+  `tresc` varchar(1000) NOT NULL,
+  `ilosc_pkt` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
 --
--- Struktura tabeli dla tabeli `pytania_zam`
+-- Struktura tabeli dla tabeli `rozwiazania`
 --
 
-CREATE TABLE `pytania_zam` (
+CREATE TABLE `rozwiazania` (
   `id` int(11) NOT NULL,
   `id_testu` int(11) NOT NULL,
-  `tresc` text COLLATE utf8_polish_ci NOT NULL,
-  `odpa` text COLLATE utf8_polish_ci NOT NULL,
-  `odpb` text COLLATE utf8_polish_ci NOT NULL,
-  `odpc` text COLLATE utf8_polish_ci NOT NULL,
-  `odpd` text COLLATE utf8_polish_ci NOT NULL,
-  `poprawda_odp` text COLLATE utf8_polish_ci NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_polish_ci;
-
--- --------------------------------------------------------
-
---
--- Struktura tabeli dla tabeli `studenci`
---
-
-CREATE TABLE `studenci` (
-  `id` int(11) NOT NULL,
-  `imie` text CHARACTER SET utf8mb4 COLLATE utf8mb4_polish_ci NOT NULL,
-  `nazwisko` text CHARACTER SET utf8mb4 COLLATE utf8mb4_polish_ci NOT NULL,
-  `nr_indeksu` int(11) NOT NULL,
-  `kierunek` text CHARACTER SET utf8mb4 COLLATE utf8mb4_polish_ci NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_polish_ci;
+  `nazwa_uzutkownika` varchar(255) NOT NULL,
+  `ilosc_zdobytych_pkt` int(11) DEFAULT NULL,
+  `ocena` varchar(255) DEFAULT NULL,
+  `czas_rozpoczecia` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `czas_zakonczenia` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -99,153 +73,111 @@ CREATE TABLE `studenci` (
 
 CREATE TABLE `testy` (
   `id` int(11) NOT NULL,
-  `nazwa` text COLLATE utf8_polish_ci NOT NULL,
-  `kierunek` text COLLATE utf8_polish_ci NOT NULL,
+  `nazwa` varchar(255) NOT NULL,
+  `kierunek` varchar(255) NOT NULL,
   `czas_na_rozw_min` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_polish_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
 --
--- Struktura tabeli dla tabeli `wykladowcy`
+-- Struktura tabeli dla tabeli `uzytkownicy`
 --
 
-CREATE TABLE `wykladowcy` (
-  `id` int(11) NOT NULL,
-  `tytul` text CHARACTER SET utf8mb4 COLLATE utf8mb4_polish_ci NOT NULL,
-  `imie` text CHARACTER SET utf8mb4 COLLATE utf8mb4_polish_ci NOT NULL,
-  `nazwisko` text CHARACTER SET utf8mb4 COLLATE utf8mb4_polish_ci NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_polish_ci;
+CREATE TABLE `uzytkownicy` (
+  `nazwa` varchar(255) NOT NULL,
+  `haslo` varchar(255) NOT NULL,
+  `czy_wykladowca` tinyint(1) NOT NULL DEFAULT '1',
+  `numer_indeksu` int(11) DEFAULT NULL,
+  `kierunek` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
 --
--- Struktura tabeli dla tabeli `wynik`
+-- Struktura tabeli dla tabeli `warianty`
 --
 
-CREATE TABLE `wynik` (
+CREATE TABLE `warianty` (
   `id` int(11) NOT NULL,
-  `id_testu` int(11) NOT NULL,
-  `nr_indeksu` int(11) NOT NULL,
-  `ilosc_pkt` int(11) NOT NULL,
-  `ocena` varchar(3) COLLATE utf8_polish_ci NOT NULL,
-  `czas_rozp` datetime NOT NULL,
-  `czas_zakon` datetime NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_polish_ci;
+  `id_pytania` int(11) NOT NULL,
+  `tresc` varchar(1000) NOT NULL,
+  `czy_poprawny` tinyint(1) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Indeksy dla zrzutów tabel
 --
 
 --
--- Indeksy dla tabeli `odpotw_studenta`
+-- Indeksy dla tabeli `odpowiedzi`
 --
-ALTER TABLE `odpotw_studenta`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `nr_indeksu` (`nr_indeksu`) USING BTREE;
+ALTER TABLE `odpowiedzi`
+  ADD PRIMARY KEY (`id`);
 
 --
--- Indeksy dla tabeli `odpzam_studenta`
+-- Indeksy dla tabeli `pytania`
 --
-ALTER TABLE `odpzam_studenta`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `id_pytania` (`id_pytania`) USING BTREE,
-  ADD UNIQUE KEY `nr_indeksu` (`nr_indeksu`) USING BTREE;
+ALTER TABLE `pytania`
+  ADD PRIMARY KEY (`id`);
 
 --
--- Indeksy dla tabeli `pytania_otw`
+-- Indeksy dla tabeli `rozwiazania`
 --
-ALTER TABLE `pytania_otw`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `id_testu` (`id_testu`) USING BTREE;
-
---
--- Indeksy dla tabeli `pytania_zam`
---
-ALTER TABLE `pytania_zam`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `id_testu` (`id_testu`) USING BTREE,
-  ADD UNIQUE KEY `id` (`id`) USING BTREE;
-
---
--- Indeksy dla tabeli `studenci`
---
-ALTER TABLE `studenci`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `nr_indeksu` (`nr_indeksu`) USING BTREE;
+ALTER TABLE `rozwiazania`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indeksy dla tabeli `testy`
 --
 ALTER TABLE `testy`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `id` (`id`) USING BTREE;
-
---
--- Indeksy dla tabeli `wykladowcy`
---
-ALTER TABLE `wykladowcy`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indeksy dla tabeli `wynik`
+-- Indeksy dla tabeli `uzytkownicy`
 --
-ALTER TABLE `wynik`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `id_testu` (`id_testu`) USING BTREE,
-  ADD UNIQUE KEY `nr_indeksu` (`nr_indeksu`) USING BTREE;
+ALTER TABLE `uzytkownicy`
+  ADD PRIMARY KEY (`nazwa`);
+
+--
+-- Indeksy dla tabeli `warianty`
+--
+ALTER TABLE `warianty`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- AUTO_INCREMENT for dumped tables
 --
 
 --
--- AUTO_INCREMENT dla tabeli `odpotw_studenta`
+-- AUTO_INCREMENT dla tabeli `odpowiedzi`
 --
-ALTER TABLE `odpotw_studenta`
+ALTER TABLE `odpowiedzi`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT dla tabeli `odpzam_studenta`
+-- AUTO_INCREMENT dla tabeli `pytania`
 --
-ALTER TABLE `odpzam_studenta`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `pytania`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
--- AUTO_INCREMENT dla tabeli `pytania_otw`
+-- AUTO_INCREMENT dla tabeli `rozwiazania`
 --
-ALTER TABLE `pytania_otw`
+ALTER TABLE `rozwiazania`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT dla tabeli `pytania_zam`
---
-ALTER TABLE `pytania_zam`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT dla tabeli `studenci`
---
-ALTER TABLE `studenci`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT dla tabeli `testy`
 --
 ALTER TABLE `testy`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
--- AUTO_INCREMENT dla tabeli `wykladowcy`
+-- AUTO_INCREMENT dla tabeli `warianty`
 --
-ALTER TABLE `wykladowcy`
+ALTER TABLE `warianty`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT dla tabeli `wynik`
---
-ALTER TABLE `wynik`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
