@@ -12,15 +12,73 @@
             <div class="ibox">
                 <div class="row">
                     <form class="form form-horizontal" method="POST" action="/zapiszPytanie">
-                <input type="hidden" value="<%=idTestu%>" name="idTestu">
-                        <input type="text" value="" name="tresc">
-                        <input type="submit" value="Dodaj" name="dodaj">
+                        <h4> Dodawanie pytań</h4>
+                        <div class="form-group">
+                            <label class="control-label col-md-3" for="opisowe">pytanie opisowe</label>
+                            <input type="radio" id="opisowe" value="opisowe" name="typ" checked="checked" class="col-md-4" />
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-md-3" for="zamkniete">pytanie zamknięte</label>
+                            <input type="radio" id="zamkniete" value="zamkniete" name="typ" class="col-md-4" />
+
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-md-3" for="tresc">Treść pytania</label>
+                            <textarea type="text" value="" id="tresc" name="tresc" rows="5" class="col-md-4"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-md-3" for="punkty">Ilość punktów za pytanie</label>
+                            <input type="number" min="0" step="1" value="" id="punkty" name="punkty" class="col-md-4" />
+                        </div>
+
+                        <div class="zamkniete">
+
+                            <% for(var i=0; i<4; i++){%>
+                                <div class="form-group">
+                                    <label class="control-label col-md-3" for="wariant<%=i+1%>">Wariant
+                                        <%=i+1%>
+                                    </label>
+                                    <input type="text" value="" id="wariant<%=i+1%>" name="wariant[<%=i%>]" class="col-md-4" />
+                                    <label class="control-label col-md-2" for="prawidlowa<%=i+1%>">Czy prawidłowe</label>
+                                    <input type="radio" value="<%=i%>" 
+                                    <%if (i==0){%> 
+                                        checked="checked"
+                                    <%}%>
+                                        id="prawidlowa<%=i+1%>" name="czy_prawidlowa" class="col-md-1" />
+                                </div>
+                                <%}%>
+                        </div>
+
+
+                        <input type="hidden" value="<%=idTestu%>" name="idTestu">
+                        <div class="btn-group col-md-offset-4">
+                            <input type="submit" class="btn  btn-primary" value="Dodaj" name="dodaj">
+                            <a href="/" class="btn btn-primary" role="button">Zakończ</a>
+                        </div>
                     </form>
-<a href="/">Zakończ</a>
+
                 </div>
             </div>
         </div>
         <%include scripts.ejs%>
+
+
+            <script type="text/javascript">
+                $(document).ready(function () {
+
+                    $('input[name="typ"]').on('change', function () {
+                        if ($('#opisowe').is(':checked')) {
+                            $('.zamkniete').hide();
+                        } else {
+                            $('.zamkniete').show();
+                        }
+                    })
+
+                    $('input[name="typ"]').trigger('change');
+                });    
+            </script>
 </body>
 
 </html>
