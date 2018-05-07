@@ -32,7 +32,7 @@ passport.use(new LocalStrategy({
     session: true
 },
     function (username, password, done) {
-        var uzytkownicy = con.query(format("SELECT nazwa, haslo, czy_wykladowca, numer_indeksu, kierunek FROM uzytkownicy WHERE nazwa = '{0}'", username));
+        var uzytkownicy = con.query(format("SELECT nazwa, imie, nazwisko, haslo, czy_wykladowca, numer_indeksu, kierunek FROM uzytkownicy WHERE nazwa = '{0}'", username));
         if (uzytkownicy.length > 0) {
             if (uzytkownicy[0].haslo == password) {
                 return done(null, uzytkownicy[0]);
@@ -60,7 +60,7 @@ var stronaGlowna = function (req, res) {
     var model = {
         tytul: 'Strona główna',
         testy: testy,
-        uzytkownik: req.user.nazwa
+        uzytkownik: req.user.imie
     }
     ejs.renderFile("Views\\home.ejs", model, function (err, str) { if (err) throw err; res.send(str); })
 }
@@ -102,7 +102,7 @@ var logowanie = function (req, res) {
 var czyZalogowany = (req, res, next) => {
     //na potrzeby testów można na sztywno ustawić użytkownika, żeby nie trzeba było się cały czas logować. 
     //Trzeba tylko od komentować linię  poniżej
-    //req.user= {nazwa:'zenek',haslo:'test',czy_wykladowca:0,numer_indeksu:1234,kierunek:'przyra'}
+    req.user= {nazwa:'zenek', imie: 'z', nazwisko: 'n' ,haslo:'test',czy_wykladowca:0,numer_indeksu:1234,kierunek:'przyra'}
 
     if (!req.isAuthenticated()) {
         return res.redirect('/logowanie');
