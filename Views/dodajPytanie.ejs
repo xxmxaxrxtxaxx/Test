@@ -40,13 +40,13 @@
                                     <label class="control-label col-md-3" for="wariant<%=i+1%>">Wariant
                                         <%=i+1%>
                                     </label>
-                                    <input type="text" value="" id="wariant<%=i+1%>" name="wariant[<%=i%>]" class="col-md-4" />
+                                    <input type="text" value="" id="wariant<%=i+1%>" name="wariant_<%=i%>" class="col-md-4" />
                                     <label class="control-label col-md-2" for="prawidlowa<%=i+1%>">Czy prawidłowe</label>
                                     <input type="radio" value="<%=i%>" 
                                     <%if (i==0){%> 
                                         checked="checked"
                                     <%}%>
-                                        id="prawidlowa<%=i+1%>" name="czy_prawidlowa" class="col-md-1" />
+                                        id="prawidlowa<%=i+1%>" name="prawidlowa_odpowiedz" class="col-md-1" />
                                 </div>
                                 <%}%>
                         </div>

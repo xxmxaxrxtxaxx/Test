@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <%include head.ejs%>
+        <title>
+            <%=wyniki%>
+        </title>
+</head>
+
+<body>
+    <%include navbar.ejs%>
+        <div class="container body-content">
+            <div class="ibox">
+                <h4>Witaj <%=uzytkownik%>!</h4>
+                <table class="table table-striped">
+                    <tr>
+                        <th>Student</th>
+                        <th>Kierunek</th>
+                        <th>Ilość zdobytych punktów</th>
+                        <th>Czas [min]</th>
+                        <th>Czy sprawdzony</th>
+                        <th>Akcje</th>
+                    </tr>
+                    <% for(var i = 0; i < rozwiazania.length; i++) { %>
+                        <tr>
+                            <td>
+                                <%=uzytkownicy[i].nazwisko %>
+                            </td>
+                            <td>
+                                <%=uzytkownicy[i].kierunek %>
+                            </td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>
+                                Sprawdź opisowe
+                            </td>
+                        </tr>
+                        <% } %>
+                </table>
+
+            </div>
+        </div>
+        <%include scripts.ejs%>
+</body>
+
+</html>

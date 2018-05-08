@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <%include head.ejs%>
+        <title>Rozwiąż</title>
+</head>
+
+<body>
+    <%include navbar.ejs%>
+        <div class="container body-content">
+            <div class="ibox">
+                <div class="row">
+                    <form class="form form-horizontal" method="POST" action="/zapiszOdpowiedz">
+                        <div class="form-group">
+                            <h3>Ilość punktów za zadanie:
+                                <%=pytanie.ilosc_pkt%>
+                            </h3>
+
+                        </div>
+
+                        <div class="form-group">
+                            <h3> Treść pytania:
+                                <%=pytanie.tresc%>
+                            </h3>
+
+                        </div>
+
+                        <div class="form-group">
+                                <label class="control-label col-md-3" for="odp">Odpowiedz</label>
+                                <textarea type="text" value="" id="odp" name="odp" rows="5" class="col-md-4"></textarea>
+                            </div>
+
+                        <input type="hidden" value="<%=pytanie.id%>" name="idPytania">
+                        <div class="btn-group col-md-offset-4">
+                            <input type="submit" class="btn  btn-primary" value="ZapiszOdpowiedź" name="ZapiszOdpowiedz">
+
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+        <%include scripts.ejs%>
+
+
+</body>
+
+</html>
