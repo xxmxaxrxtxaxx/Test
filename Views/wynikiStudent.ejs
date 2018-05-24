@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <%include head.ejs%>
+        <title>
+          Moje wyniki
+        </title>
+</head>
+
+<body>
+    <%include navbar.ejs%>
+        <div class="container body-content">
+            <div class="ibox">
+                <h4>Moje wyniki</h4>
+                <table class="table table-striped">
+                    <tr>
+                        <th>Student</th>
+                        <th>Czy Rozwiazany</th>
+                        <th>Ilość zdobytych punktów</th>
+                        <th>Czas [min]</th>
+                        <th>Ocena</th>
+                        <th>Akcje</th>
+                    </tr>
+                    <% for(var i = 0; i < rozwiazania.length; i++) { %>
+                        <tr>
+                            <td>
+                                <%=rozwiazania[i].imie %> <%=rozwiazania[i].nazwisko %>
+                            </td>
+                            <td>
+                                <%=rozwiazania[i].id != null ? "Tak" : "Nie" %>
+                            </td>
+                            <td><%=rozwiazania[i].ilosc_zdobytych_pkt %></td>
+                            <td><%=rozwiazania[i].czas %></td>
+                            <td><%=rozwiazania[i].ocena %></td>
+                            <td>
+                                    <%if(rozwiazania[i].id != null) { %>
+                                        <a href="/sprawdz/<%=rozwiazania[i].id %>">Sprawdź</a>
+                                   <% } %>                                
+                            </td>
+                        </tr>
+                        <% } %>
+                </table>
+
+            </div>
+        </div>
+        <%include scripts.ejs%>
+</body>
+
+</html>

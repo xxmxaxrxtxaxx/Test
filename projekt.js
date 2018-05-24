@@ -54,7 +54,6 @@ passport.deserializeUser(function (user, done) {
 });
 
 
-
 var stronaGlowna = function (req, res) {
    
     if (req.user.czy_wykladowca == 1) {
@@ -68,12 +67,14 @@ var stronaGlowna = function (req, res) {
         ejs.renderFile("Views\\home.ejs", model, function (err, str) { if (err) throw err; res.send(str); })
     }
     else {
-        var testy = con.query(format("select nazwa, id from testy where kierunek = '{0}'",req.user.kierunek));
+        var testy = con.query(format("select testy.nazwa, rozwiazania.ilosc_zdobytych_pkt, rozwiazania.ocena, rozwiazania.id, testy.id as id_testu, rozwiazania.ocena, rozwiazania.ilosc_zdobytych_pkt from testy left join rozwiazania on(testy.id=rozwiazania.id_testu and rozwiazania.nazwa_uzutkownika='{1}') where kierunek = '{0}' ",req.user.kierunek, req.user.nazwa));
+        
         var model = {
             tytul: 'Strona główna',
             testy: testy,
             uzytkownik: req.user.imie,
-            czy_wykladowca: req.user.czy_wykladowca
+            czy_wykladowca: req.user.czy_wykladowca,
+    
         }
         ejs.renderFile("Views\\homeStudent.ejs", model, function (err, str) { if (err) throw err; res.send(str); })
     }
@@ -136,7 +137,7 @@ var logowanie = function (req, res) {
 var czyZalogowany = (req, res, next) => {
     //na potrzeby testów można na sztywno ustawić użytkownika, żeby nie trzeba było się cały czas logować. 
     //Trzeba tylko od komentować linię  poniżej
-  //  req.user = { nazwa: 'zenek', imie: 'z', nazwisko: 'n', haslo: 'test', czy_wykladowca: 1, numer_indeksu: 1234, kierunek: 'Fizyka' }
+    req.user = { nazwa: 'zenek', imie: 'z', nazwisko: 'n', haslo: 'test', czy_wykladowca: 1, numer_indeksu: 1234, kierunek: 'Fizyka' }
 
     if (!req.isAuthenticated()) {
         return res.redirect('/logowanie');
@@ -161,6 +162,7 @@ var wyniki = function (req, res) {
     var model = {
         rozwiazania: rozwiazania,
         nazwaTestu:nazwaTestu
+
     }
     ejs.renderFile("Views\\wyniki.ejs", model, function (err, str) { if (err) throw err; res.send(str); })
 };
