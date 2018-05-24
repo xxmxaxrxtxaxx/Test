@@ -56,28 +56,36 @@ passport.deserializeUser(function (user, done) {
 
 
 var stronaGlowna = function (req, res) {
-    var testy = con.query("select nazwa, id from testy");
-    var model = {
-        tytul: 'Strona główna',
-        testy: testy,
-        uzytkownik: req.user.imie,
-        czy_wykladowca: req.user.czy_wykladowca
-    }
+   
     if (req.user.czy_wykladowca == 1) {
+        var testy = con.query("select nazwa, id from testy");
+        var model = {
+            tytul: 'Strona główna',
+            testy: testy,
+            uzytkownik: req.user.imie,
+            czy_wykladowca: req.user.czy_wykladowca
+        }
         ejs.renderFile("Views\\home.ejs", model, function (err, str) { if (err) throw err; res.send(str); })
     }
     else {
+        var testy = con.query(format("select nazwa, id from testy where kierunek = '{0}'",req.user.kierunek));
+        var model = {
+            tytul: 'Strona główna',
+            testy: testy,
+            uzytkownik: req.user.imie,
+            czy_wykladowca: req.user.czy_wykladowca
+        }
         ejs.renderFile("Views\\homeStudent.ejs", model, function (err, str) { if (err) throw err; res.send(str); })
     }
 }
-
 
 var dodajTest = function (req, res) {
     ejs.renderFile("Views\\edytuj.ejs", {}, function (err, str) { if (err) throw err; res.send(str); })
 }
 
 var zapiszTest = function (req, res) {
-    var id = con.query(format("insert into testy (nazwa) values ('{0}')", req.body.nazwa)).insertId;
+    var id = con.query(format("insert into testy (nazwa,kierunek,czas_na_rozw_min) values ('{0}','{1}',{2})"
+    , req.body.nazwa, req.body.przedmiot, req.body.czas)).insertId;
 
     res.redirect(format('/dodajPytanie/{0}', id));
 }
@@ -113,6 +121,7 @@ var zapiszPytanie = function (req, res) {
 
 
 var usunTest = function (req, res) {
+    con.query(format("delete from pytania where id_testu={0}", req.params.idTestu));
     con.query(format("delete from testy where id={0}", req.params.idTestu));
     res.redirect(format('/'));
 }
@@ -127,7 +136,7 @@ var logowanie = function (req, res) {
 var czyZalogowany = (req, res, next) => {
     //na potrzeby testów można na sztywno ustawić użytkownika, żeby nie trzeba było się cały czas logować. 
     //Trzeba tylko od komentować linię  poniżej
-    req.user = { nazwa: 'zenek', imie: 'z', nazwisko: 'n', haslo: 'test', czy_wykladowca: 0, numer_indeksu: 1234, kierunek: 'przyra' }
+    req.user = { nazwa: 'zenek', imie: 'z', nazwisko: 'n', haslo: 'test', czy_wykladowca: 1, numer_indeksu: 1234, kierunek: 'Fizyka' }
 
     if (!req.isAuthenticated()) {
         return res.redirect('/logowanie');
@@ -141,9 +150,17 @@ var wyloguj = function (req, res) {
 };
 
 var wyniki = function (req, res) {
-    var rozwiazania = con.query(format("select rozwiazania.id,  from rozwiazania where id_testu={0}", req.params.idTestu));
+    var nazwaTestu = con.query(format("select nazwa from testy where id = {0}",req.params.idTestu))[0].nazwa;
+    var rozwiazania = con.query(format(
+        "select rozwiazania.id,uzytkownicy.imie,uzytkownicy.nazwisko,rozwiazania.ocena,rozwiazania.ilosc_zdobytych_pkt, "+
+        "TIMESTAMPDIFF(MINUTE,rozwiazania.czas_rozpoczecia,rozwiazania.czas_zakonczenia) as czas "+
+        "from testy  "+
+        "join uzytkownicy on testy.kierunek = uzytkownicy.kierunek "+
+        "left join rozwiazania on (testy.id = rozwiazania.id_testu and uzytkownicy.nazwa = rozwiazania.nazwa_uzutkownika) "+
+        "where testy.id={0}", req.params.idTestu));
     var model = {
-        rozwiazainia: rozwiazania,
+        rozwiazania: rozwiazania,
+        nazwaTestu:nazwaTestu
     }
     ejs.renderFile("Views\\wyniki.ejs", model, function (err, str) { if (err) throw err; res.send(str); })
 };
@@ -160,32 +177,44 @@ var rozpocznijTest = function (req, res) {
     }
 }
 var odpowiedz = function (req, res) {
-    var pytanie = con.query(format("select tresc, id, ilosc_pkt from pytania where id={0}", req.params.idPytania))[0];
+    var pytanie = con.query(format("select tresc, id, ilosc_pkt, id_testu from pytania where id={0}", req.params.idPytania))[0];
     var warianty = con.query(format("select id, tresc from warianty where id_pytania={0}", req.params.idPytania));
+    var idRozwiazania = con.query(format("select id from rozwiazania where id_testu = {0} and nazwa_uzutkownika = '{1}'",pytanie.id_testu, req.user.nazwa ))[0].id;
     if (warianty.length > 0) {
         //pytanie zamkniete
         var model = {
             pytanie: pytanie,
-            warianty: warianty
-
+            warianty: warianty,
+            idRozwiazania: idRozwiazania
         }
         ejs.renderFile("Views\\zamkniete.ejs", model, function (err, str) { if (err) throw err; res.send(str); })
     }
     else {
         //pytanie otwarte
         var model = {
-            pytanie: pytanie
+            pytanie: pytanie,
+            idRozwiazania: idRozwiazania
         }
         ejs.renderFile("Views\\opisowe.ejs", model, function (err, str) { if (err) throw err; res.send(str); })
     }
 }
 
 var zapiszOdpowiedz = function (req, res) {
-    con.query(format("insert into odpowiedzi (nazwa_uzutkownika, id_testu) values ({0},'{1}')", req.body.idTestu, req.body.tresc));
-    res.redirect(format('/', req.body.idTestu));
+    con.query(format("insert into odpowiedzi (id_rozwiazania, id_pytania, id_wariantu, odpowiedz_otw) values ({0},{1},{2},'{3}')"
+    , req.body.idRozwiazania, req.body.idPytania, req.body.wybrana_odp || null,req.body.tresc_odpowiedzi || null));
+
+    var idTestu = con.query(format("select id_testu from rozwiazania where id = {0}",req.body.idRozwiazania))[0].id_testu;
+
+    var pytaniaBezOdpowiedzi = con.query(format("select pytania.id from pytania where id_testu = {0} and not exists (select 1 from odpowiedzi where odpowiedzi.id_pytania = pytania.id and odpowiedzi.id_rozwiazania = {1})",
+    idTestu, req.body.idRozwiazania));
+
+    if(pytaniaBezOdpowiedzi.length > 0){
+        res.redirect(format('/odpowiedz/{0}', pytaniaBezOdpowiedzi[0].id));
+    }else{ //koniec testu
+        con.query(format("update rozwiazania set czas_zakonczenia = now() where id = {0}",req.body.idRozwiazania));
+        res.redirect(format('/'));
+    }
 }
-
-
 
 app.get('/', czyZalogowany, stronaGlowna);
 app.get('/wyniki/:idTestu', czyZalogowany, wyniki);

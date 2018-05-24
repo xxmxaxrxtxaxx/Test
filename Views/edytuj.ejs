@@ -8,17 +8,23 @@
 
 <body>
     <%include navbar.ejs%>
-        <div class="container body-content">
+        <div class="container body-content" >
             <div class="ibox">
                 <div class="row">
-                    <form class="form form-horizontal" method="POST" action="/zapisz">
+                    <form class="form form-horizontal" id="nowy_test" method="POST" action="/zapisz">
                         <br>
                         Nazwa testu: 
                         <input class="form-control" type="text" name="nazwa" value="">
                         Przedmiot: 
-                        <input class="form-control" type="text" name="przedmiot" value="">
+                      
+                        <select class="form-control" name="przedmiot" form="nowy_test">
+                            <option value="Informatyka">Informatyka</option>
+                            <option value="Matematyka">Matematyka</option>
+                            <option value="Fizyka">Fizyka</option>
+                            <option value="Mechanika">Mechanika</option>
+                          </select>
                         Czas rozwiązywania testu: 
-                        <input class="form-control" type="text" name="czas" value="">
+                        <input class="form-control" type="number" name="czas" value="">
                         <br>
                         <input class="btn btn-default" type="submit">
                     </form>

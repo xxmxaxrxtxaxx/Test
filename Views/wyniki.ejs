@@ -4,7 +4,7 @@
 <head>
     <%include head.ejs%>
         <title>
-            <%=wyniki%>
+           Wyniki
         </title>
 </head>
 
@@ -12,29 +12,31 @@
     <%include navbar.ejs%>
         <div class="container body-content">
             <div class="ibox">
-                <h4>Witaj <%=uzytkownik%>!</h4>
+                <h4>Wyniki testu: <%=nazwaTestu %></h4>
                 <table class="table table-striped">
                     <tr>
                         <th>Student</th>
-                        <th>Kierunek</th>
+                        <th>Czy Rozwiazany</th>
                         <th>Ilość zdobytych punktów</th>
                         <th>Czas [min]</th>
-                        <th>Czy sprawdzony</th>
+                        <th>Ocena</th>
                         <th>Akcje</th>
                     </tr>
                     <% for(var i = 0; i < rozwiazania.length; i++) { %>
                         <tr>
                             <td>
-                                <%=uzytkownicy[i].nazwisko %>
+                                <%=rozwiazania[i].imie %> <%=rozwiazania[i].nazwisko %>
                             </td>
                             <td>
-                                <%=uzytkownicy[i].kierunek %>
+                                <%=rozwiazania[i].id != null ? "Tak" : "Nie" %>
                             </td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
+                            <td><%=rozwiazania[i].ilosc_zdobytych_pkt %></td>
+                            <td><%=rozwiazania[i].czas %></td>
+                            <td><%=rozwiazania[i].ocena %></td>
                             <td>
-                                Sprawdź opisowe
+                                    <%if(rozwiazania[i].id != null) { %>
+                                        <a href="/sprawdz/<%=rozwiazania[i].id %>">Sprawdź</a>
+                                   <% } %>                                
                             </td>
                         </tr>
                         <% } %>
