@@ -136,7 +136,7 @@ var logowanie = function (req, res) {
 var czyZalogowany = (req, res, next) => {
     //na potrzeby testów można na sztywno ustawić użytkownika, żeby nie trzeba było się cały czas logować. 
     //Trzeba tylko od komentować linię  poniżej
-    req.user = { nazwa: 'zenek', imie: 'z', nazwisko: 'n', haslo: 'test', czy_wykladowca: 1, numer_indeksu: 1234, kierunek: 'Fizyka' }
+  //  req.user = { nazwa: 'zenek', imie: 'z', nazwisko: 'n', haslo: 'test', czy_wykladowca: 1, numer_indeksu: 1234, kierunek: 'Fizyka' }
 
     if (!req.isAuthenticated()) {
         return res.redirect('/logowanie');
@@ -200,10 +200,13 @@ var odpowiedz = function (req, res) {
 }
 
 var zapiszOdpowiedz = function (req, res) {
-    con.query(format("insert into odpowiedzi (id_rozwiazania, id_pytania, id_wariantu, odpowiedz_otw) values ({0},{1},{2},'{3}')"
-    , req.body.idRozwiazania, req.body.idPytania, req.body.wybrana_odp || null,req.body.tresc_odpowiedzi || null));
+    var zapytanie=format("insert into odpowiedzi (id_rozwiazania, id_pytania, id_wariantu, odpowiedz_otw) values ({0},{1},{2},'{3}')"
+    , req.body.idRozwiazania, req.body.idPytania, req.body.wybrana_odp || 'null',req.body.tresc_odpowiedzi || 'null');
+
+    con.query(zapytanie);
 
     var idTestu = con.query(format("select id_testu from rozwiazania where id = {0}",req.body.idRozwiazania))[0].id_testu;
+
 
     var pytaniaBezOdpowiedzi = con.query(format("select pytania.id from pytania where id_testu = {0} and not exists (select 1 from odpowiedzi where odpowiedzi.id_pytania = pytania.id and odpowiedzi.id_rozwiazania = {1})",
     idTestu, req.body.idRozwiazania));
