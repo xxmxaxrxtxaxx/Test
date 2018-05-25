@@ -221,6 +221,18 @@ var zapiszOdpowiedz = function (req, res) {
     }
 }
 
+var sprawdzOpisowe = function (req, res) {
+    var odpowiedz=format("select odpowiedz_otw from odpowiedzi where id_rozwiazania={0} and zdobyte_pkt={1}", req.params.id_rozwiazania, req.user.zdobyte_pkt);
+  //  if(odpowiedz==null){
+    var model = {
+        odpowiedz: odpowiedz
+    }
+    ejs.renderFile("Views\\sprawdzOpisowe.ejs", model, function (err, str) { if (err) throw err; res.send(str); })
+}
+//}
+
+
+
 app.get('/', czyZalogowany, stronaGlowna);
 app.get('/wyniki/:idTestu', czyZalogowany, wyniki);
 app.get('/dodajPytanie/:id', czyZalogowany, dodajPytanie);
@@ -233,6 +245,7 @@ app.get('/usunTest/:idTestu', czyZalogowany, usunTest);
 app.get('/rozpocznijTest/:idTestu', czyZalogowany, rozpocznijTest);
 app.get('/odpowiedz/:idPytania', czyZalogowany, odpowiedz);
 app.post('/zapiszOdpowiedz', czyZalogowany, zapiszOdpowiedz);
+app.get('/sprawdzOpisowe/:idTestu', czyZalogowany, sprawdzOpisowe);
 
 app.post('/login',
     passport.authenticate('local', { failureRedirect: '/logowanie' }),

@@ -13,14 +13,16 @@
                 <div class="row">
                     <form class="form form-horizontal" method="POST" action="/zapiszPunkty">
                         <div class="form-group">
+                        
+                
                             <h3>Ilość punktów za zadanie:
-                                <%=pytanie.ilosc_pkt%>
+                                <%=odpowiedz.ilosc_pkt%>
                             </h3>
                         </div>
 
                         <div class="form-group">
                             <h3> Treść pytania:
-                                <%=pytanie.tresc%>
+                                <%=odpowiedz.tresc%>
                             </h3>
                         </div>
 
@@ -30,11 +32,12 @@
                             </div>
                             <input type="number" name="zdobytePunkty" required/>
                             <input type="hidden" value="<%=odpowiedz.id%>" name="idOdpowiedzi">
-                            <input type="hidden" value="<%=idRozwiazania%>" name="idRozwiazania">
+                            <input type="hidden" value="<%=odpowiedz.id%>" name="idRozwiazania">
                         <div class="btn-group col-md-offset-4">
                             <input type="submit" class="btn  btn-primary" value="Zapisz" name="Zapisz">
 
                         </div>
+
                     </form>
 
                 </div>
