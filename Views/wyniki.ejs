@@ -34,7 +34,7 @@
                             <td><%=rozwiazania[i].czas %></td>
                             <td><%=rozwiazania[i].ocena %></td>
                             <td>
-                                    <%if(rozwiazania[i].id != null) { %>
+                                    <%if(rozwiazania[i].id != null && rozwiazania[i].ilosc_zdobytych_pkt == null) { %>
                                         <a href="/sprawdzOpisowe/<%=rozwiazania[i].id %>">Sprawdź</a>
                                    <% } %>                                
                             </td>
