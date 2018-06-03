@@ -16,7 +16,10 @@
                             <h3>Ilość punktów za zadanie:
                                 <%=pytanie.ilosc_pkt%>
                             </h3>
+                        </h3>
+                        <h3 id="czas">
 
+                        </h3>
                         </div>
 
                         <div class="form-group">
@@ -40,7 +43,7 @@
                                 <input type="hidden" value="<%=pytanie.id%>" name="idPytania">
                                 <input type="hidden" value="<%=idRozwiazania%>" name="idRozwiazania">
                         <div class="btn-group col-md-offset-4">
-                            <input type="submit" class="btn  btn-primary" value="Zapisz Odpowiedź" name="ZapiszOdpowiedz">
+                            <input type="submit" class="btn  btn-primary" value="Zapisz odpowiedź" name="ZapiszOdpowiedz">
 
                         </div>
                     </form>
@@ -50,6 +53,21 @@
         </div>
         <%include scripts.ejs%>
 
+
+        <script type="text/javascript">
+
+            var czas_konca_testu =<%=czas_konca_testu%>;
+
+            setInterval(function () {
+                var ilosc_min_do_konca = Math.round((czas_konca_testu - Date.now()) / 60000);
+
+                if (ilosc_min_do_konca >= 0) {
+                    $("#czas").html("Zostało: " + ilosc_min_do_konca + " min");
+                }
+
+            }, 1000)
+
+        </script>
 
 </body>
 

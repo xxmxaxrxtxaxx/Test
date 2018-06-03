@@ -179,15 +179,22 @@ var rozpocznijTest = function (req, res) {
     }
 }
 var odpowiedz = function (req, res) {
+    
+    
     var pytanie = con.query(format("select tresc, id, ilosc_pkt, id_testu from pytania where id={0}", req.params.idPytania))[0];
     var warianty = con.query(format("select id, tresc from warianty where id_pytania={0}", req.params.idPytania));
-    var idRozwiazania = con.query(format("select id from rozwiazania where id_testu = {0} and nazwa_uzutkownika = '{1}'", pytanie.id_testu, req.user.nazwa))[0].id;
+    var rozwiazanie = con.query(format("select id, czas_rozpoczecia from rozwiazania where id_testu = {0} and nazwa_uzutkownika = '{1}'", pytanie.id_testu, req.user.nazwa))[0];
+   var czas_na_rozw = con.query(format("select czas_na_rozw_min from testy where id={0}", pytanie.id_testu))[0].czas_na_rozw_min;
+   var czas_konca_testu=new Date(rozwiazanie.czas_rozpoczecia).getTime()+czas_na_rozw*60*1000;
+
     if (warianty.length > 0) {
         //pytanie zamkniete
         var model = {
             pytanie: pytanie,
             warianty: warianty,
-            idRozwiazania: idRozwiazania
+            idRozwiazania: rozwiazanie.id,
+            czas_konca_testu: czas_konca_testu
+
         }
         ejs.renderFile("Views\\zamkniete.ejs", model, function (err, str) { if (err) throw err; res.send(str); })
     }
@@ -195,25 +202,36 @@ var odpowiedz = function (req, res) {
         //pytanie otwarte
         var model = {
             pytanie: pytanie,
-            idRozwiazania: idRozwiazania
+            idRozwiazania: rozwiazanie.id,
+            czas_konca_testu: czas_konca_testu
         }
         ejs.renderFile("Views\\opisowe.ejs", model, function (err, str) { if (err) throw err; res.send(str); })
     }
 }
 
 var zapiszOdpowiedz = function (req, res) {
+//pobranie czasu rozpoczecia testu
+//jeżeli czas rozpoczecia testu+czas rozwiazania testu jest wiekszy niz teraz to zapisz tą odpowiedź, jeżeli nie to test już się skończył
+
+var czas_na_rozwiazanie=con.query(format("select testy.czas_na_rozw_min, rozwiazania.czas_rozpoczecia from testy "
++"inner join rozwiazania on rozwiazania.id_testu=testy.id where rozwiazania.id={0}",req.body.idRozwiazania))[0];
+
+var czy_jest_czas=new Date(czas_na_rozwiazanie.czas_rozpoczecia)>new Date(Date.now() - czas_na_rozwiazanie.czas_na_rozw_min * 60 * 1000);
+
+if(czy_jest_czas){
+
     var zapytanie = format("insert into odpowiedzi (id_rozwiazania, id_pytania, id_wariantu, odpowiedz_otw) values ({0},{1},{2},'{3}')"
         , req.body.idRozwiazania, req.body.idPytania, req.body.wybrana_odp || 'null', req.body.tresc_odpowiedzi || 'null');
 
     con.query(zapytanie);
-
-    var idTestu = con.query(format("select id_testu from rozwiazania where id = {0}", req.body.idRozwiazania))[0].id_testu;
-
+   
+}
+var idTestu = con.query(format("select id_testu from rozwiazania where id = {0}", req.body.idRozwiazania))[0].id_testu;
 
     var pytaniaBezOdpowiedzi = con.query(format("select pytania.id from pytania where id_testu = {0} and not exists (select 1 from odpowiedzi where odpowiedzi.id_pytania = pytania.id and odpowiedzi.id_rozwiazania = {1})",
         idTestu, req.body.idRozwiazania));
 
-    if (pytaniaBezOdpowiedzi.length > 0) {
+    if (pytaniaBezOdpowiedzi.length > 0 && czy_jest_czas) {
         res.redirect(format('/odpowiedz/{0}', pytaniaBezOdpowiedzi[0].id));
     } else { //koniec testu
         con.query(format("update rozwiazania set czas_zakonczenia = now() where id = {0}", req.body.idRozwiazania));
