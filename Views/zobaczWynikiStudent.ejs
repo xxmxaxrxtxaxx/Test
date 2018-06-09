@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <%include head.ejs%>
+        <title>
+           Wyniki
+        </title>
+</head>
+
+<body>
+        <%include navbar.ejs%>
+        <div class="container body-content">
+            <div class="ibox">
+                <h4>Test: <%=nazwa_testu %></h4>
+                <table class="table table-striped">
+                    <tr>
+                        <th>Treść pytania</th>
+                        <th>Udzielona odpowiedź</th>
+                        <th>Maksymalna ilość punktów</th>
+                        <th>Ilość przyznanych punktów</th>
+                    </tr>
+                    <% for(var i = 0; i < zobacz.length; i++) { %>
+                    <tr>
+                            <td>
+                                    <%=zobacz[i].tresc%> 
+                            </td>
+                            <td>
+                                <%if(zobacz[i].id_wariantu==null){%>
+                                    <%=zobacz[i].odpowiedz_otw %> 
+                                <%}else{%>
+                                <%=zobacz[i].wariant_tresc%> 
+                                <%}%>
+                            </td>
+                            <td>
+                                    <%=zobacz[i].ilosc_pkt %> 
+                            </td>
+                            <td>
+                                    <%=zobacz[i].zdobyte_pkt %> 
+                            </td>                             
+
+                    </tr>
+                    <%}%>
+</body>
+</html>

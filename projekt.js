@@ -264,16 +264,17 @@ var sprawdzOpisowe = function (req, res) {
                 return;
             }
         }
+        res.redirect(format('/sprawdzOpisowe/{0}',req.params.id_rozwiazania));
     }
     else {
         var id_testu = con.query(format("select id_testu from rozwiazania where id={0}", req.params.id_rozwiazania))[0].id_testu;
         var max_pkt = con.query(format("select sum(ilosc_pkt) as suma from pytania where id_testu={0}", id_testu))[0].suma;
         var suma_zdobytych_pkt=con.query(format("select sum(zdobyte_pkt) as suma from odpowiedzi where id_rozwiazania={0}", req.params.id_rozwiazania))[0].suma;
         var ocena="nie zaliczony";
-        if(max_pkt/suma_zdobytych_pkt>0.5){
+        if(suma_zdobytych_pkt/max_pkt>0.5){
             ocena="zaliczony";
         }
-        con.query(format("update rozwiazania set ilosc_zdobytych_pkt={0}, ocena='{1}'", suma_zdobytych_pkt, ocena));
+        con.query(format("update rozwiazania set ilosc_zdobytych_pkt={0}, ocena='{1}' where id = {2}", suma_zdobytych_pkt, ocena, req.params.id_rozwiazania));
         res.redirect(format('/wyniki/{0}',id_testu));
         //wroc do wyniki
     }
@@ -284,6 +285,21 @@ var zapisz_pkt = function (req, res) {
     res.redirect(format('/sprawdzOpisowe/{0}',req.body.idRozwiazania));
 }
 
+var zobaczWynikiStudent = function (req, res){
+var zobacz=con.query(format("select rozwiazania.id, warianty.id as id_wariantu, odpowiedzi.zdobyte_pkt, pytania.tresc, pytania.ilosc_pkt, "
++"odpowiedzi.odpowiedz_otw, warianty.czy_poprawny, warianty.tresc as wariant_tresc from rozwiazania "
++"join pytania on pytania.id_testu=rozwiazania.id_testu left join odpowiedzi on (odpowiedzi.id_rozwiazania=rozwiazania.id and odpowiedzi.id_pytania = pytania.id) "
++"left join warianty on warianty.id=odpowiedzi.id_wariantu where rozwiazania.id={0} ", req.params.id_rozwiazania));
+
+var nazwa_testu=con.query(format("select testy.nazwa, rozwiazania.id from rozwiazania inner join testy on rozwiazania.id_testu=testy.id where rozwiazania.id={0} ", req.params.id_rozwiazania))[0].nazwa_testu;
+var model = {
+    zobacz:zobacz,
+    nazwa_testu:nazwa_testu
+}
+
+ejs.renderFile("Views\\zobaczWynikiStudent.ejs", model, function (err, str) { if (err) throw err; res.send(str); })
+ return;
+}
 
 
 app.get('/', czyZalogowany, stronaGlowna);
@@ -300,6 +316,7 @@ app.get('/odpowiedz/:idPytania', czyZalogowany, odpowiedz);
 app.post('/zapiszOdpowiedz', czyZalogowany, zapiszOdpowiedz);
 app.get('/sprawdzOpisowe/:id_rozwiazania', czyZalogowany, sprawdzOpisowe);
 app.post('/zapisz_pkt', czyZalogowany, zapisz_pkt);
+app.get('/zobaczWynikiStudent/:id_rozwiazania', czyZalogowany, zobaczWynikiStudent);
 
 app.post('/login',
     passport.authenticate('local', { failureRedirect: '/logowanie' }),
