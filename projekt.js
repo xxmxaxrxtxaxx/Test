@@ -6,8 +6,9 @@ const format = require('string-format');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const session = require('express-session');
+const fileUpload = require('express-fileupload');
 
-const urlencodedParser = bodyParser.urlencoded({ extended: false })
+const urlencodedParser = bodyParser.urlencoded({ extended: true })
 
 const app = express();
 app.use(express.static(__dirname + '/public'));
@@ -45,6 +46,7 @@ app.use(urlencodedParser);
 app.use(session(sess));
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(fileUpload());
 
 passport.serializeUser(function (user, done) {
     done(null, user);
@@ -137,7 +139,7 @@ var logowanie = function (req, res) {
 var czyZalogowany = (req, res, next) => {
     //na potrzeby testów można na sztywno ustawić użytkownika, żeby nie trzeba było się cały czas logować. 
     //Trzeba tylko od komentować linię  poniżej
-  //  req.user = { nazwa: 'zenek', imie: 'z', nazwisko: 'n', haslo: 'test', czy_wykladowca: 0, numer_indeksu: 1234, kierunek: 'Fizyka' }
+    req.user = { nazwa: 'zenek', imie: 'z', nazwisko: 'n', haslo: 'test', czy_wykladowca: 1, numer_indeksu: 1234, kierunek: 'Fizyka' }
 
     if (!req.isAuthenticated()) {
         return res.redirect('/logowanie');
@@ -179,13 +181,13 @@ var rozpocznijTest = function (req, res) {
     }
 }
 var odpowiedz = function (req, res) {
-    
-    
+
+
     var pytanie = con.query(format("select tresc, id, ilosc_pkt, id_testu from pytania where id={0}", req.params.idPytania))[0];
     var warianty = con.query(format("select id, tresc from warianty where id_pytania={0}", req.params.idPytania));
     var rozwiazanie = con.query(format("select id, czas_rozpoczecia from rozwiazania where id_testu = {0} and nazwa_uzutkownika = '{1}'", pytanie.id_testu, req.user.nazwa))[0];
-   var czas_na_rozw = con.query(format("select czas_na_rozw_min from testy where id={0}", pytanie.id_testu))[0].czas_na_rozw_min;
-   var czas_konca_testu=new Date(rozwiazanie.czas_rozpoczecia).getTime()+czas_na_rozw*60*1000;
+    var czas_na_rozw = con.query(format("select czas_na_rozw_min from testy where id={0}", pytanie.id_testu))[0].czas_na_rozw_min;
+    var czas_konca_testu = new Date(rozwiazanie.czas_rozpoczecia).getTime() + czas_na_rozw * 60 * 1000;
 
     if (warianty.length > 0) {
         //pytanie zamkniete
@@ -210,23 +212,23 @@ var odpowiedz = function (req, res) {
 }
 
 var zapiszOdpowiedz = function (req, res) {
-//pobranie czasu rozpoczecia testu
-//jeżeli czas rozpoczecia testu+czas rozwiazania testu jest wiekszy niz teraz to zapisz tą odpowiedź, jeżeli nie to test już się skończył
+    //pobranie czasu rozpoczecia testu
+    //jeżeli czas rozpoczecia testu+czas rozwiazania testu jest wiekszy niz teraz to zapisz tą odpowiedź, jeżeli nie to test już się skończył
 
-var czas_na_rozwiazanie=con.query(format("select testy.czas_na_rozw_min, rozwiazania.czas_rozpoczecia from testy "
-+"inner join rozwiazania on rozwiazania.id_testu=testy.id where rozwiazania.id={0}",req.body.idRozwiazania))[0];
+    var czas_na_rozwiazanie = con.query(format("select testy.czas_na_rozw_min, rozwiazania.czas_rozpoczecia from testy "
+        + "inner join rozwiazania on rozwiazania.id_testu=testy.id where rozwiazania.id={0}", req.body.idRozwiazania))[0];
 
-var czy_jest_czas=new Date(czas_na_rozwiazanie.czas_rozpoczecia)>new Date(Date.now() - czas_na_rozwiazanie.czas_na_rozw_min * 60 * 1000);
+    var czy_jest_czas = new Date(czas_na_rozwiazanie.czas_rozpoczecia) > new Date(Date.now() - czas_na_rozwiazanie.czas_na_rozw_min * 60 * 1000);
 
-if(czy_jest_czas){
+    if (czy_jest_czas) {
 
-    var zapytanie = format("insert into odpowiedzi (id_rozwiazania, id_pytania, id_wariantu, odpowiedz_otw) values ({0},{1},{2},'{3}')"
-        , req.body.idRozwiazania, req.body.idPytania, req.body.wybrana_odp || 'null', req.body.tresc_odpowiedzi || 'null');
+        var zapytanie = format("insert into odpowiedzi (id_rozwiazania, id_pytania, id_wariantu, odpowiedz_otw) values ({0},{1},{2},'{3}')"
+            , req.body.idRozwiazania, req.body.idPytania, req.body.wybrana_odp || 'null', req.body.tresc_odpowiedzi || 'null');
 
-    con.query(zapytanie);
-   
-}
-var idTestu = con.query(format("select id_testu from rozwiazania where id = {0}", req.body.idRozwiazania))[0].id_testu;
+        con.query(zapytanie);
+
+    }
+    var idTestu = con.query(format("select id_testu from rozwiazania where id = {0}", req.body.idRozwiazania))[0].id_testu;
 
     var pytaniaBezOdpowiedzi = con.query(format("select pytania.id from pytania where id_testu = {0} and not exists (select 1 from odpowiedzi where odpowiedzi.id_pytania = pytania.id and odpowiedzi.id_rozwiazania = {1})",
         idTestu, req.body.idRozwiazania));
@@ -264,43 +266,74 @@ var sprawdzOpisowe = function (req, res) {
                 return;
             }
         }
-        res.redirect(format('/sprawdzOpisowe/{0}',req.params.id_rozwiazania));
+        res.redirect(format('/sprawdzOpisowe/{0}', req.params.id_rozwiazania));
     }
     else {
         var id_testu = con.query(format("select id_testu from rozwiazania where id={0}", req.params.id_rozwiazania))[0].id_testu;
         var max_pkt = con.query(format("select sum(ilosc_pkt) as suma from pytania where id_testu={0}", id_testu))[0].suma;
-        var suma_zdobytych_pkt=con.query(format("select sum(zdobyte_pkt) as suma from odpowiedzi where id_rozwiazania={0}", req.params.id_rozwiazania))[0].suma;
-        var ocena="nie zaliczony";
-        if(suma_zdobytych_pkt/max_pkt>0.5){
-            ocena="zaliczony";
+        var suma_zdobytych_pkt = con.query(format("select sum(zdobyte_pkt) as suma from odpowiedzi where id_rozwiazania={0}", req.params.id_rozwiazania))[0].suma;
+        var ocena = "nie zaliczony";
+        if (suma_zdobytych_pkt / max_pkt > 0.5) {
+            ocena = "zaliczony";
         }
         con.query(format("update rozwiazania set ilosc_zdobytych_pkt={0}, ocena='{1}' where id = {2}", suma_zdobytych_pkt, ocena, req.params.id_rozwiazania));
-        res.redirect(format('/wyniki/{0}',id_testu));
+        res.redirect(format('/wyniki/{0}', id_testu));
         //wroc do wyniki
     }
 
 }
 var zapisz_pkt = function (req, res) {
     con.query(format("update odpowiedzi set zdobyte_pkt={0} where id={1}", req.body.zdobytePunkty, req.body.idOdpowiedzi));
-    res.redirect(format('/sprawdzOpisowe/{0}',req.body.idRozwiazania));
+    res.redirect(format('/sprawdzOpisowe/{0}', req.body.idRozwiazania));
 }
 
-var zobaczWynikiStudent = function (req, res){
-var zobacz=con.query(format("select rozwiazania.id, warianty.id as id_wariantu, odpowiedzi.zdobyte_pkt, pytania.tresc, pytania.ilosc_pkt, "
-+"odpowiedzi.odpowiedz_otw, warianty.czy_poprawny, warianty.tresc as wariant_tresc from rozwiazania "
-+"join pytania on pytania.id_testu=rozwiazania.id_testu left join odpowiedzi on (odpowiedzi.id_rozwiazania=rozwiazania.id and odpowiedzi.id_pytania = pytania.id) "
-+"left join warianty on warianty.id=odpowiedzi.id_wariantu where rozwiazania.id={0} ", req.params.id_rozwiazania));
+var zobaczWynikiStudent = function (req, res) {
+    var zobacz = con.query(format("select rozwiazania.id, warianty.id as id_wariantu, odpowiedzi.zdobyte_pkt, pytania.tresc, pytania.ilosc_pkt, "
+        + "odpowiedzi.odpowiedz_otw, warianty.czy_poprawny, warianty.tresc as wariant_tresc from rozwiazania "
+        + "join pytania on pytania.id_testu=rozwiazania.id_testu left join odpowiedzi on (odpowiedzi.id_rozwiazania=rozwiazania.id and odpowiedzi.id_pytania = pytania.id) "
+        + "left join warianty on warianty.id=odpowiedzi.id_wariantu where rozwiazania.id={0} ", req.params.id_rozwiazania));
 
-var nazwa_testu=con.query(format("select testy.nazwa, rozwiazania.id from rozwiazania inner join testy on rozwiazania.id_testu=testy.id where rozwiazania.id={0} ", req.params.id_rozwiazania))[0].nazwa_testu;
-var model = {
-    zobacz:zobacz,
-    nazwa_testu:nazwa_testu
+    var nazwa_testu = con.query(format("select testy.nazwa, rozwiazania.id from rozwiazania inner join testy on rozwiazania.id_testu=testy.id where rozwiazania.id={0} ", req.params.id_rozwiazania))[0].nazwa_testu;
+    var model = {
+        zobacz: zobacz,
+        nazwa_testu: nazwa_testu
+    }
+
+    ejs.renderFile("Views\\zobaczWynikiStudent.ejs", model, function (err, str) { if (err) throw err; res.send(str); })
+    return;
 }
 
-ejs.renderFile("Views\\zobaczWynikiStudent.ejs", model, function (err, str) { if (err) throw err; res.send(str); })
- return;
+var studenci = function (req, res) {
+
+    var model = {
+        studenci: con.query(format("select imie, nazwisko, kierunek, nazwa, numer_indeksu from uzytkownicy where czy_wykladowca = 0")),
+    }
+
+    ejs.renderFile("Views\\studenci.ejs", model, function (err, str) { if (err) throw err; res.send(str); })
 }
 
+var importujStudentow = function (req, res) {
+    if (req.files) {
+        var linie = req.files.plik.data.toString('utf8').split('\r');
+        if (linie.length > 0) {
+            linie.forEach(linia => {
+                var kolumny = linia.split(',');
+                if (kolumny.length == 6) {
+                    con.query(format("insert into uzytkownicy (nazwa,imie,nazwisko,haslo,kierunek,numer_indeksu,czy_wykladowca) values ('{0}','{1}','{2}','{3}','{4}',{5},0)",
+                        kolumny[2], kolumny[0], kolumny[1], kolumny[3], kolumny[5], kolumny[4]))
+                }
+            });
+        }
+    }
+    res.redirect('/studenci');
+}
+
+var usunStudenta = function (req, res) {
+    con.query(format("delete from odpowiedzi where id_rozwiazania in (select r.id from rozwiazania r where r.nazwa_uzutkownika = '{0}')",req.params.nazwa));
+    con.query(format("delete from rozwiazania where nazwa_uzutkownika = '{0}'",req.params.nazwa));
+    con.query(format("delete from uzytkownicy where nazwa = '{0}'",req.params.nazwa));
+    res.redirect('/studenci');
+}
 
 app.get('/', czyZalogowany, stronaGlowna);
 app.get('/wyniki/:idTestu', czyZalogowany, wyniki);
@@ -317,7 +350,9 @@ app.post('/zapiszOdpowiedz', czyZalogowany, zapiszOdpowiedz);
 app.get('/sprawdzOpisowe/:id_rozwiazania', czyZalogowany, sprawdzOpisowe);
 app.post('/zapisz_pkt', czyZalogowany, zapisz_pkt);
 app.get('/zobaczWynikiStudent/:id_rozwiazania', czyZalogowany, zobaczWynikiStudent);
-
+app.get('/studenci', czyZalogowany, studenci);
+app.post('/importujStudentow', czyZalogowany, importujStudentow)
+app.get('/usunStudenta/:nazwa', czyZalogowany, usunStudenta)
 app.post('/login',
     passport.authenticate('local', { failureRedirect: '/logowanie' }),
     function (req, res) {

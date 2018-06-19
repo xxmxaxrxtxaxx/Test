@@ -1,0 +1,2 @@
+Zenek,Martyniuk,z,z,1234,Informatyka
+Stefan,Kolaska,s,s,324,Fizyka
