@@ -11,24 +11,36 @@
         <div class="container body-content">
             <div class="ibox">
                 <div class="row">
-                    <form class="form form-horizontal" method="POST" action="/zapiszPytanie">
+                    <form id="dodaj-pytanie" class="form form-horizontal" method="POST" action="/zapiszPytanie">
                         <h4> Dodawanie pytań</h4>
                         <div class="form-group">
+                            <label class="control-label col-md-3" for="archiwum">pytanie z archiwum</label>
+                            <input type="radio" id="archiwum" value="archiwum" name="typ" checked="checked" class="col-md-4" />
+                        </div>
+                        <div class="form-group">
                             <label class="control-label col-md-3" for="opisowe">pytanie opisowe</label>
-                            <input type="radio" id="opisowe" value="opisowe" name="typ" checked="checked" class="col-md-4" />
+                            <input type="radio" id="opisowe" value="opisowe" name="typ"  class="col-md-4" />
                         </div>
                         <div class="form-group">
                             <label class="control-label col-md-3" for="zamkniete">pytanie zamknięte</label>
                             <input type="radio" id="zamkniete" value="zamkniete" name="typ" class="col-md-4" />
-
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group archiwum">
+                            <label class="control-label col-md-3" for="archiwum">Treść pytania</label>
+                            <select id="archiwum" name="id_archiwum" form="dodaj-pytanie" class="col-md-4">
+                                <% for(var i=0; i<archiwalne.length; i++){%>
+                                    <option value="<%=archiwalne[i].id%>"><%=archiwalne[i].tresc%></option>
+                                <%}%>
+                            </select>
+                        </div>
+
+                        <div class="form-group nie-archiwum">
                             <label class="control-label col-md-3" for="tresc">Treść pytania</label>
                             <textarea type="text" value="" id="tresc" name="tresc" rows="5" class="col-md-4"></textarea>
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group nie-archiwum">
                             <label class="control-label col-md-3" for="punkty">Ilość punktów za pytanie</label>
                             <input type="number" min="0" step="1" value="" id="punkty" name="punkty" class="col-md-4" />
                         </div>
@@ -70,10 +82,20 @@
 
                     $('input[name="typ"]').on('change', function () {
                         if ($('#opisowe').is(':checked')) {
+                            $('.nie-archiwum').show();
                             $('.zamkniete').hide();
-                        } else {
-                            $('.zamkniete').show();
+                            $('.archiwum').hide();
                         }
+                        if ($('#zamkniete').is(':checked')) {
+                            $('.nie-archiwum').show();
+                            $('.zamkniete').show();
+                            $('.archiwum').hide();
+                        }
+                        if ($('#archiwum').is(':checked')) {
+                            $('.nie-archiwum').hide();
+                            $('.zamkniete').hide();
+                            $('.archiwum').show();
+                        }                        
                     })
 
                     $('input[name="typ"]').trigger('change');

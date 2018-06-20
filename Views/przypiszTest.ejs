@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <%include head.ejs%>
+        <title>
+            Przypisz test
+        </title>
+</head>
+
+<body>
+    <%include navbar.ejs%>
+        <div class="container body-content">
+            <div class="ibox">
+                <form class="form form-horizontal" method="POST" action="/przypiszStudentow">
+                <input type="hidden" name="idTestu" value="<%=idTestu%>"/>
+                
+                <h4>Lista studentów</h4>
+                <table class="table table-striped">
+                    <tr>
+                        <th>Imię</th>
+                        <th>Nazwisko</th>
+                        <th>Kierunek</th>
+                        <th>Nr Indeksu</th>
+                        <th>Przypisany</th>
+                    </tr>
+                    <% for(var i = 0; i < studenci.length; i++) { %>
+                        <tr>
+                            <td>
+                                <%=studenci[i].imie %>
+                            </td> 
+                            <td>
+                                <%=studenci[i].nazwisko %>
+                            </td> 
+                            <td>
+                                <%=studenci[i].kierunek %>
+                            </td>
+                            <td>
+                                <%=studenci[i].numer_indeksu %>
+                            </td>
+                            <td>
+                                <input type="hidden" name="studenci[<%=i%>][nazwa]" value="<%=studenci[i].nazwa %>"/>
+                                <input type="checkbox" name="studenci[<%=i%>][czy_przypisany]" value="1"
+                                <%if(studenci[i].czy_przypisany){ %>checked<% } %> />
+                            </td>
+                        </tr>
+                        <% } %>
+                </table>
+                <input type="submit" class="btn  btn-primary" value="Przypisz" />
+            </form>
+            </div>
+        </div>
+        <%include scripts.ejs%>
+</body>
+
+</html>

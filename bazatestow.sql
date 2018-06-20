@@ -1,24 +1,48 @@
 -- phpMyAdmin SQL Dump
--- version 4.1.12
--- http://www.phpmyadmin.net
+-- version 4.8.0.1
+-- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: 19 Cze 2018, 07:18
--- Server version: 5.6.16
--- PHP Version: 5.5.11
+-- Czas generowania: 20 Cze 2018, 21:07
+-- Wersja serwera: 10.1.32-MariaDB
+-- Wersja PHP: 7.2.5
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET AUTOCOMMIT = 0;
+START TRANSACTION;
 SET time_zone = "+00:00";
 
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8 */;
+/*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `bazatestow`
+-- Baza danych: `bazatestow`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Struktura tabeli dla tabeli `archiwum`
+--
+
+CREATE TABLE `archiwum` (
+  `id` int(11) NOT NULL,
+  `tresc` varchar(1000) NOT NULL,
+  `ilosc_pkt` int(11) NOT NULL DEFAULT '1'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Zrzut danych tabeli `archiwum`
+--
+
+INSERT INTO `archiwum` (`id`, `tresc`, `ilosc_pkt`) VALUES
+(1, 'pierwsze pytanie opisowe', 2),
+(2, 'drugie pytanie opisowe', 2),
+(3, 'pierwsze pytanie zamknietw', 1),
+(4, 'drugie pytanie zamk', 2);
 
 -- --------------------------------------------------------
 
@@ -26,38 +50,23 @@ SET time_zone = "+00:00";
 -- Struktura tabeli dla tabeli `odpowiedzi`
 --
 
-CREATE TABLE IF NOT EXISTS `odpowiedzi` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+CREATE TABLE `odpowiedzi` (
+  `id` int(11) NOT NULL,
   `id_pytania` int(11) NOT NULL,
   `id_rozwiazania` int(11) NOT NULL,
   `id_wariantu` int(11) DEFAULT NULL,
   `odpowiedz_otw` varchar(1000) DEFAULT NULL,
-  `zdobyte_pkt` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=58 ;
+  `zdobyte_pkt` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Zrzut danych tabeli `odpowiedzi`
 --
 
 INSERT INTO `odpowiedzi` (`id`, `id_pytania`, `id_rozwiazania`, `id_wariantu`, `odpowiedz_otw`, `zdobyte_pkt`) VALUES
-(41, 9, 49, NULL, '12', 2),
-(42, 10, 49, 6, 'null', 0),
-(43, 11, 50, NULL, '23', NULL),
-(44, 12, 50, 9, 'null', NULL),
-(45, 9, 51, NULL, 'tak', 2),
-(46, 10, 51, 5, 'null', 2),
-(47, 13, 52, 14, 'null', 2),
-(48, 14, 52, 20, 'null', 3),
-(49, 15, 52, 23, 'null', 0),
-(50, 16, 53, NULL, 'rrrrr', 0),
-(51, 17, 53, NULL, 'eeee', 0),
-(52, 18, 53, NULL, 'ooooo', 0),
-(53, 19, 54, NULL, 'dassd', 1),
-(54, 20, 54, NULL, 'sfds', 1),
-(55, 11, 55, NULL, 'null', 0),
-(56, 12, 55, NULL, 'null', 0),
-(57, 21, 56, 26, 'null', NULL);
+(1, 5, 1, NULL, 'ddd', 1),
+(2, 6, 1, 2, 'null', 0),
+(3, 7, 1, 6, 'null', 0);
 
 -- --------------------------------------------------------
 
@@ -65,30 +74,24 @@ INSERT INTO `odpowiedzi` (`id`, `id_pytania`, `id_rozwiazania`, `id_wariantu`, `
 -- Struktura tabeli dla tabeli `pytania`
 --
 
-CREATE TABLE IF NOT EXISTS `pytania` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+CREATE TABLE `pytania` (
+  `id` int(11) NOT NULL,
   `id_testu` int(11) NOT NULL,
-  `tresc` varchar(1000) NOT NULL,
-  `ilosc_pkt` int(11) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=22 ;
+  `id_archiwum` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Zrzut danych tabeli `pytania`
 --
 
-INSERT INTO `pytania` (`id`, `id_testu`, `tresc`, `ilosc_pkt`) VALUES
-(9, 17, 'Czy 2+2=1', 2),
-(10, 17, 'ile 1+1', 2),
-(11, 18, '3+7', 4),
-(12, 18, '2*9', 2),
-(13, 19, '12121', 2),
-(14, 19, 'sfsdf', 3),
-(15, 19, 'khhhj', 3),
-(16, 20, 'asassaas', 2),
-(17, 20, '1+1', 1),
-(18, 20, '4+4', 2),
-(21, 22, '2+2', 6);
+INSERT INTO `pytania` (`id`, `id_testu`, `id_archiwum`) VALUES
+(5, 2, 2),
+(6, 2, 3),
+(7, 2, 4),
+(8, 3, 4),
+(9, 3, 1),
+(10, 3, 3),
+(11, 4, 4);
 
 -- --------------------------------------------------------
 
@@ -96,28 +99,22 @@ INSERT INTO `pytania` (`id`, `id_testu`, `tresc`, `ilosc_pkt`) VALUES
 -- Struktura tabeli dla tabeli `rozwiazania`
 --
 
-CREATE TABLE IF NOT EXISTS `rozwiazania` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+CREATE TABLE `rozwiazania` (
+  `id` int(11) NOT NULL,
   `id_testu` int(11) NOT NULL,
   `nazwa_uzutkownika` varchar(255) NOT NULL,
   `ilosc_zdobytych_pkt` int(11) DEFAULT NULL,
   `ocena` varchar(255) DEFAULT NULL,
   `czas_rozpoczecia` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `czas_zakonczenia` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=57 ;
+  `czas_zakonczenia` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Zrzut danych tabeli `rozwiazania`
 --
 
 INSERT INTO `rozwiazania` (`id`, `id_testu`, `nazwa_uzutkownika`, `ilosc_zdobytych_pkt`, `ocena`, `czas_rozpoczecia`, `czas_zakonczenia`) VALUES
-(51, 17, 'MK', 4, 'zaliczony', '2018-06-09 15:40:26', '2018-06-09 15:40:39'),
-(52, 19, 'MK', 5, 'zaliczony', '2018-06-09 15:40:43', '2018-06-09 15:41:03'),
-(53, 20, 'MK', 0, 'zaliczony', '2018-06-09 15:41:06', '2018-06-09 15:41:24'),
-(54, 21, 'MK', 2, 'nie zaliczony', '2018-06-09 15:46:56', '2018-06-09 15:48:14'),
-(55, 18, 'MK', 0, 'nie zaliczony', '2018-06-09 15:49:19', '2018-06-09 15:49:30'),
-(56, 22, 'MK', NULL, NULL, '2018-06-18 17:28:21', '2018-06-18 17:28:56');
+(1, 2, 'z', 1, 'nie zaliczony', '2018-06-20 20:02:29', '2018-06-20 20:10:17');
 
 -- --------------------------------------------------------
 
@@ -125,24 +122,40 @@ INSERT INTO `rozwiazania` (`id`, `id_testu`, `nazwa_uzutkownika`, `ilosc_zdobyty
 -- Struktura tabeli dla tabeli `testy`
 --
 
-CREATE TABLE IF NOT EXISTS `testy` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+CREATE TABLE `testy` (
+  `id` int(11) NOT NULL,
   `nazwa` varchar(255) NOT NULL,
   `kierunek` varchar(255) NOT NULL,
-  `czas_na_rozw_min` int(11) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=23 ;
+  `czas_na_rozw_min` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Zrzut danych tabeli `testy`
 --
 
 INSERT INTO `testy` (`id`, `nazwa`, `kierunek`, `czas_na_rozw_min`) VALUES
-(17, 'Test', 'Informatyka', 1),
-(18, 'test_nie_rozwizany', 'Informatyka', 12),
-(19, 'tylko zamkniete', 'Informatyka', 12),
-(20, 'tylko otwarte', 'Informatyka', 10),
-(22, 'test z przyry albo nie', 'Informatyka', 3);
+(2, 'test z archiwum', 'Matematyka', 13),
+(3, 'losowy', 'Informatyka', 23),
+(4, 'recznie', 'Informatyka', 23);
+
+-- --------------------------------------------------------
+
+--
+-- Struktura tabeli dla tabeli `test_studenta`
+--
+
+CREATE TABLE `test_studenta` (
+  `nazwa_uzytkownika` varchar(255) NOT NULL,
+  `id_testu` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Zrzut danych tabeli `test_studenta`
+--
+
+INSERT INTO `test_studenta` (`nazwa_uzytkownika`, `id_testu`) VALUES
+('undefined', 2),
+('z', 2);
 
 -- --------------------------------------------------------
 
@@ -150,15 +163,14 @@ INSERT INTO `testy` (`id`, `nazwa`, `kierunek`, `czas_na_rozw_min`) VALUES
 -- Struktura tabeli dla tabeli `uzytkownicy`
 --
 
-CREATE TABLE IF NOT EXISTS `uzytkownicy` (
+CREATE TABLE `uzytkownicy` (
   `nazwa` varchar(255) NOT NULL,
   `imie` varchar(100) NOT NULL,
   `nazwisko` varchar(100) NOT NULL,
   `haslo` varchar(255) NOT NULL,
   `czy_wykladowca` tinyint(1) NOT NULL DEFAULT '1',
   `numer_indeksu` int(11) DEFAULT NULL,
-  `kierunek` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`nazwa`)
+  `kierunek` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -166,12 +178,8 @@ CREATE TABLE IF NOT EXISTS `uzytkownicy` (
 --
 
 INSERT INTO `uzytkownicy` (`nazwa`, `imie`, `nazwisko`, `haslo`, `czy_wykladowca`, `numer_indeksu`, `kierunek`) VALUES
-('AL', 'Anna', 'Lis', 'lis', 0, 987654, 'Matematyka'),
-('EW', 'Ewa', 'Wnuk', 'wnuk', 0, 657483, 'Mechanika'),
-('JN', 'Jan', 'Nowak', '123456', 1, NULL, NULL),
-('KR', 'Krzysztof', 'Robak', 'robak', 1, NULL, NULL),
-('MK', 'Marta', 'Kaszuba', 'qazzaq', 0, 111111, 'Informatyka'),
-('PK', 'Piotr', 'Kowalski', 'kowalski', 0, 123456, 'Fizyka');
+('s', '\nStefan', 'Kolaska', 's', 0, 324, 'Fizyka'),
+('z', 'Zenek', 'Martyniuk', 'z', 0, 1234, 'Informatyka');
 
 -- --------------------------------------------------------
 
@@ -179,43 +187,117 @@ INSERT INTO `uzytkownicy` (`nazwa`, `imie`, `nazwisko`, `haslo`, `czy_wykladowca
 -- Struktura tabeli dla tabeli `warianty`
 --
 
-CREATE TABLE IF NOT EXISTS `warianty` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `id_pytania` int(11) NOT NULL,
+CREATE TABLE `warianty` (
+  `id` int(11) NOT NULL,
+  `id_archiwum` int(11) NOT NULL,
   `tresc` varchar(1000) NOT NULL,
-  `czy_poprawny` tinyint(1) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=29 ;
+  `czy_poprawny` tinyint(1) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Zrzut danych tabeli `warianty`
 --
 
-INSERT INTO `warianty` (`id`, `id_pytania`, `tresc`, `czy_poprawny`) VALUES
-(5, 10, '2', 1),
-(6, 10, '1', 0),
-(7, 10, '0', 0),
-(8, 10, '3', 0),
-(9, 12, '18', 1),
-(10, 12, '2', 0),
-(11, 12, '11', 0),
-(12, 12, '56', 0),
-(13, 13, 'a', 0),
-(14, 13, 'b', 1),
-(15, 13, 'c', 0),
-(16, 13, 'd', 0),
-(17, 14, 'ww', 0),
-(18, 14, 'eee', 0),
-(19, 14, 'tt', 0),
-(20, 14, 'yy', 1),
-(21, 15, '21', 1),
-(22, 15, '2', 0),
-(23, 15, '3', 0),
-(24, 15, '4', 0),
-(25, 21, '1', 0),
-(26, 21, '2', 0),
-(27, 21, '3', 0),
-(28, 21, '4', 1);
+INSERT INTO `warianty` (`id`, `id_archiwum`, `tresc`, `czy_poprawny`) VALUES
+(1, 3, 'poprawny', 1),
+(2, 3, 'nie', 0),
+(3, 3, 'wcale', 0),
+(4, 4, 'aaa', 1),
+(5, 4, 'ddd', 0),
+(6, 4, 'fff', 0);
+
+--
+-- Indeksy dla zrzutów tabel
+--
+
+--
+-- Indeksy dla tabeli `archiwum`
+--
+ALTER TABLE `archiwum`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indeksy dla tabeli `odpowiedzi`
+--
+ALTER TABLE `odpowiedzi`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indeksy dla tabeli `pytania`
+--
+ALTER TABLE `pytania`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indeksy dla tabeli `rozwiazania`
+--
+ALTER TABLE `rozwiazania`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indeksy dla tabeli `testy`
+--
+ALTER TABLE `testy`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indeksy dla tabeli `test_studenta`
+--
+ALTER TABLE `test_studenta`
+  ADD UNIQUE KEY `nazwa_uzytkownika` (`nazwa_uzytkownika`,`id_testu`);
+
+--
+-- Indeksy dla tabeli `uzytkownicy`
+--
+ALTER TABLE `uzytkownicy`
+  ADD PRIMARY KEY (`nazwa`);
+
+--
+-- Indeksy dla tabeli `warianty`
+--
+ALTER TABLE `warianty`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT dla tabeli `archiwum`
+--
+ALTER TABLE `archiwum`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT dla tabeli `odpowiedzi`
+--
+ALTER TABLE `odpowiedzi`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT dla tabeli `pytania`
+--
+ALTER TABLE `pytania`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+
+--
+-- AUTO_INCREMENT dla tabeli `rozwiazania`
+--
+ALTER TABLE `rozwiazania`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT dla tabeli `testy`
+--
+ALTER TABLE `testy`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT dla tabeli `warianty`
+--
+ALTER TABLE `warianty`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;

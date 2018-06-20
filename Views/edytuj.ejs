@@ -24,9 +24,12 @@
                             <option value="Mechanika">Mechanika</option>
                           </select>
                         Czas rozwiązywania testu: 
-                        <input class="form-control" type="number" name="czas" value="">
+                        <input class="form-control" type="number" name="czas" value="" min="0" step="1"/>
+                        Ilość pytań: 
+                        <input class="form-control" type="number" name="ilosc_pytan" value="1"  min="1" step="1"/>
                         <br>
-                        <input class="btn btn-default" type="submit">
+                        <input class="btn btn-default" type="submit" name="recznie" value="Dodaj Pytania Ręcznie">
+                        <input class="btn btn-default" type="submit" name="losowo" value="Generuj Losowo">
                     </form>
                 </div>
             </div>

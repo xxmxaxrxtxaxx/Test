@@ -69,7 +69,7 @@ var stronaGlowna = function (req, res) {
         ejs.renderFile("Views\\home.ejs", model, function (err, str) { if (err) throw err; res.send(str); })
     }
     else {
-        var testy = con.query(format("select testy.nazwa, rozwiazania.ilosc_zdobytych_pkt, rozwiazania.ocena, rozwiazania.id, testy.id as id_testu, rozwiazania.ocena, rozwiazania.ilosc_zdobytych_pkt from testy left join rozwiazania on(testy.id=rozwiazania.id_testu and rozwiazania.nazwa_uzutkownika='{1}') where kierunek = '{0}' ", req.user.kierunek, req.user.nazwa));
+        var testy = con.query(format("select t.nazwa, r.ilosc_zdobytych_pkt, r.ocena, r.id, t.id as id_testu, r.ocena, r.ilosc_zdobytych_pkt from test_studenta ts join testy t on t.id = ts.id_testu left join rozwiazania r on(ts.id_testu=r.id_testu and ts.nazwa_uzytkownika = r.nazwa_uzutkownika) where ts.nazwa_uzytkownika = '{0}' ",  req.user.nazwa));
 
         var model = {
             tytul: 'Strona główna',
@@ -90,38 +90,50 @@ var zapiszTest = function (req, res) {
     var id = con.query(format("insert into testy (nazwa,kierunek,czas_na_rozw_min) values ('{0}','{1}',{2})"
         , req.body.nazwa, req.body.przedmiot, req.body.czas)).insertId;
 
-    res.redirect(format('/dodajPytanie/{0}', id));
+    if(req.body.recznie){
+
+        res.redirect(format('/dodajPytanie/{0}', id));
+    }else{
+        var losowePytania = con.query(format("select id from archiwum order by rand() limit {0}", req.body.ilosc_pytan));
+        losowePytania.forEach(pytanie => {
+            con.query(format("insert into pytania (id_testu, id_archiwum) values ({0},{1})", id, pytanie.id));
+        });
+    }
 }
 
 var dodajPytanie = function (req, res) {
     var model = {
-        idTestu: req.params.id
+        idTestu: req.params.id,
+        archiwalne: con.query("select id, tresc from archiwum")
     }
     ejs.renderFile("Views\\dodajPytanie.ejs", model, function (err, str) { if (err) throw err; res.send(str); })
 }
 
 var zapiszPytanie = function (req, res) {
-
-    var id = con.query(format("insert into pytania (id_testu, tresc, ilosc_pkt) values ({0},'{1}',{2})", req.body.idTestu, req.body.tresc, req.body.punkty)).insertId;
-    if (req.body.wariant_0) {
-        con.query(format("insert into warianty (tresc, id_pytania, czy_poprawny) values ('{0}',{1},{2})",
-            req.body.wariant_0, id, (req.body.prawidlowa_odpowiedz == 0 ? 1 : 0)));
+    var id_archiwum = req.body.id_archiwum;
+    if(req.body.typ != 'archiwum'){
+        var id_archiwum = con.query(format("insert into archiwum (tresc, ilosc_pkt) values ('{0}',{1})", req.body.tresc, req.body.punkty)).insertId;
+        if (req.body.wariant_0) {
+            con.query(format("insert into warianty (tresc, id_archiwum, czy_poprawny) values ('{0}',{1},{2})",
+                req.body.wariant_0, id_archiwum, (req.body.prawidlowa_odpowiedz == 0 ? 1 : 0)));
+        }
+        if (req.body.wariant_1) {
+            con.query(format("insert into warianty (tresc, id_archiwum, czy_poprawny) values ('{0}',{1},{2})",
+                req.body.wariant_1, id_archiwum, (req.body.prawidlowa_odpowiedz == 1 ? 1 : 0)));
+        }
+        if (req.body.wariant_2) {
+            con.query(format("insert into warianty (tresc, id_archiwum, czy_poprawny) values ('{0}',{1},{2})",
+                req.body.wariant_2, id_archiwum, (req.body.prawidlowa_odpowiedz == 2 ? 1 : 0)));
+        }
+        if (req.body.wariant_3) {
+            con.query(format("insert into warianty (tresc, id_archiwum, czy_poprawny) values ('{0}',{1},{2})",
+                req.body.wariant_3, id_archiwum, (req.body.prawidlowa_odpowiedz == 3 ? 1 : 0)));
+        }
     }
-    if (req.body.wariant_1) {
-        con.query(format("insert into warianty (tresc, id_pytania, czy_poprawny) values ('{0}',{1},{2})",
-            req.body.wariant_1, id, (req.body.prawidlowa_odpowiedz == 1 ? 1 : 0)));
-    }
-    if (req.body.wariant_2) {
-        con.query(format("insert into warianty (tresc, id_pytania, czy_poprawny) values ('{0}',{1},{2})",
-            req.body.wariant_2, id, (req.body.prawidlowa_odpowiedz == 2 ? 1 : 0)));
-    }
-    if (req.body.wariant_3) {
-        con.query(format("insert into warianty (tresc, id_pytania, czy_poprawny) values ('{0}',{1},{2})",
-            req.body.wariant_3, id, (req.body.prawidlowa_odpowiedz == 3 ? 1 : 0)));
-    }
+    con.query(format("insert into pytania (id_testu, id_archiwum) values ({0},{1})", req.body.idTestu, id_archiwum));
+    
     res.redirect(format('/dodajPytanie/{0}', req.body.idTestu));
 }
-
 
 var usunTest = function (req, res) {
     con.query(format("delete from pytania where id_testu={0}", req.params.idTestu));
@@ -129,17 +141,32 @@ var usunTest = function (req, res) {
     res.redirect(format('/'));
 }
 
-
 var logowanie = function (req, res) {
     var model = {};
 
     ejs.renderFile("Views\\logowanie.ejs", model, function (err, str) { if (err) throw err; res.send(str); })
 }
 
+var zmianaHasla = function(req, res){
+    var model = {};
+
+    ejs.renderFile("Views\\zmianaHasla.ejs", model, function (err, str) { if (err) throw err; res.send(str); })
+};
+
+var zmienHaslo = function(req, res){
+    var uzytkownicy = con.query(format("SELECT nazwa, imie, nazwisko, haslo, czy_wykladowca, numer_indeksu, kierunek FROM uzytkownicy WHERE nazwa = '{0}'", req.body.nazwa));
+    if (uzytkownicy.length > 0) {
+        if (uzytkownicy[0].haslo == req.body.haslo) {
+            con.query(format("update uzytkownicy set haslo = '{0}'  WHERE nazwa = '{1}'",req.body.noweHaslo, req.body.nazwa));
+            res.redirect("/");
+        }
+    }
+};
+
 var czyZalogowany = (req, res, next) => {
     //na potrzeby testów można na sztywno ustawić użytkownika, żeby nie trzeba było się cały czas logować. 
     //Trzeba tylko od komentować linię  poniżej
-    req.user = { nazwa: 'zenek', imie: 'z', nazwisko: 'n', haslo: 'test', czy_wykladowca: 1, numer_indeksu: 1234, kierunek: 'Fizyka' }
+  //  req.user = { nazwa: 'z', imie: 'z', nazwisko: 'n', haslo: 'test', czy_wykladowca: 0, numer_indeksu: 1234, kierunek: 'Fizyka' }
 
     if (!req.isAuthenticated()) {
         return res.redirect('/logowanie');
@@ -155,12 +182,8 @@ var wyloguj = function (req, res) {
 var wyniki = function (req, res) {
     var nazwaTestu = con.query(format("select nazwa from testy where id = {0}", req.params.idTestu))[0].nazwa;
     var rozwiazania = con.query(format(
-        "select rozwiazania.id,uzytkownicy.imie,uzytkownicy.nazwisko,rozwiazania.ocena,rozwiazania.ilosc_zdobytych_pkt, " +
-        "TIMESTAMPDIFF(MINUTE,rozwiazania.czas_rozpoczecia,rozwiazania.czas_zakonczenia) as czas " +
-        "from testy  " +
-        "join uzytkownicy on testy.kierunek = uzytkownicy.kierunek " +
-        "left join rozwiazania on (testy.id = rozwiazania.id_testu and uzytkownicy.nazwa = rozwiazania.nazwa_uzutkownika) " +
-        "where testy.id={0}", req.params.idTestu));
+        "select r.id,u.imie,u.nazwisko,r.ocena,r.ilosc_zdobytych_pkt, TIMESTAMPDIFF(MINUTE,r.czas_rozpoczecia,r.czas_zakonczenia) as czas from test_studenta t join uzytkownicy  u on t.nazwa_uzytkownika = u.nazwa  left join rozwiazania r on (t.id_testu = r.id_testu and u.nazwa = r.nazwa_uzutkownika)  where t.id_testu=2"
+        , req.params.idTestu));
     var model = {
         rozwiazania: rozwiazania,
         nazwaTestu: nazwaTestu
@@ -176,15 +199,14 @@ var rozpocznijTest = function (req, res) {
     }
     else {
         con.query(format("insert into rozwiazania (nazwa_uzutkownika, czas_rozpoczecia, id_testu) values ('{0}', now(), {1})", req.user.nazwa, req.params.idTestu));
-        var idPierwszegoPytania = con.query(format("select id from pytania where id_testu={0}", req.params.idTestu))[0].id;
+        var idPierwszegoPytania = con.query(format("select id from pytania where id_testu={0} order by id", req.params.idTestu))[0].id;
         res.redirect(format('/odpowiedz/{0}', idPierwszegoPytania));
     }
 }
 var odpowiedz = function (req, res) {
 
-
-    var pytanie = con.query(format("select tresc, id, ilosc_pkt, id_testu from pytania where id={0}", req.params.idPytania))[0];
-    var warianty = con.query(format("select id, tresc from warianty where id_pytania={0}", req.params.idPytania));
+    var pytanie = con.query(format("select a.tresc, p.id, a.ilosc_pkt, p.id_testu from pytania p join archiwum a on p.id_archiwum = a.id where p.id={0}", req.params.idPytania))[0];
+    var warianty = con.query(format("select w.id, w.tresc from pytania p join archiwum a on p.id_archiwum = a.id join warianty w on a.id = w.id_archiwum where p.id={0}", req.params.idPytania));
     var rozwiazanie = con.query(format("select id, czas_rozpoczecia from rozwiazania where id_testu = {0} and nazwa_uzutkownika = '{1}'", pytanie.id_testu, req.user.nazwa))[0];
     var czas_na_rozw = con.query(format("select czas_na_rozw_min from testy where id={0}", pytanie.id_testu))[0].czas_na_rozw_min;
     var czas_konca_testu = new Date(rozwiazanie.czas_rozpoczecia).getTime() + czas_na_rozw * 60 * 1000;
@@ -243,9 +265,8 @@ var zapiszOdpowiedz = function (req, res) {
 
 var sprawdzOpisowe = function (req, res) {
     var odpowiedz = con.query(format(
-        "select odpowiedzi.odpowiedz_otw, odpowiedzi.id, odpowiedzi.id_wariantu, pytania.ilosc_pkt,pytania.tresc, warianty.czy_poprawny " +
-        "from odpowiedzi join pytania on odpowiedzi.id_pytania = pytania.id left join warianty on warianty.id=odpowiedzi.id_wariantu " +
-        " where id_rozwiazania={0} and zdobyte_pkt is null", req.params.id_rozwiazania));
+        "select o.odpowiedz_otw, o.id, o.id_wariantu, a.ilosc_pkt,a.tresc, w.czy_poprawny from odpowiedzi o join pytania p on o.id_pytania = p.id "+
+        "join archiwum a on p.id_archiwum = a.id left join warianty w on w.id=o.id_wariantu  where o.id_rozwiazania=1 and o.zdobyte_pkt is null", req.params.id_rozwiazania));
     if (odpowiedz.length > 0) {
         for (var i = 0; i < odpowiedz.length; i++) {
             if (odpowiedz[i].id_wariantu != null) {
@@ -270,7 +291,7 @@ var sprawdzOpisowe = function (req, res) {
     }
     else {
         var id_testu = con.query(format("select id_testu from rozwiazania where id={0}", req.params.id_rozwiazania))[0].id_testu;
-        var max_pkt = con.query(format("select sum(ilosc_pkt) as suma from pytania where id_testu={0}", id_testu))[0].suma;
+        var max_pkt = con.query(format("select sum(a.ilosc_pkt) as suma from pytania p join archiwum a on p.id_archiwum = a.id  where p.id_testu={0}", id_testu))[0].suma;
         var suma_zdobytych_pkt = con.query(format("select sum(zdobyte_pkt) as suma from odpowiedzi where id_rozwiazania={0}", req.params.id_rozwiazania))[0].suma;
         var ocena = "nie zaliczony";
         if (suma_zdobytych_pkt / max_pkt > 0.5) {
@@ -288,10 +309,11 @@ var zapisz_pkt = function (req, res) {
 }
 
 var zobaczWynikiStudent = function (req, res) {
-    var zobacz = con.query(format("select rozwiazania.id, warianty.id as id_wariantu, odpowiedzi.zdobyte_pkt, pytania.tresc, pytania.ilosc_pkt, "
-        + "odpowiedzi.odpowiedz_otw, warianty.czy_poprawny, warianty.tresc as wariant_tresc from rozwiazania "
-        + "join pytania on pytania.id_testu=rozwiazania.id_testu left join odpowiedzi on (odpowiedzi.id_rozwiazania=rozwiazania.id and odpowiedzi.id_pytania = pytania.id) "
-        + "left join warianty on warianty.id=odpowiedzi.id_wariantu where rozwiazania.id={0} ", req.params.id_rozwiazania));
+    var zobacz = con.query(format(
+    "select r.id, w.id as id_wariantu, o.zdobyte_pkt, a.tresc, a.ilosc_pkt, o.odpowiedz_otw, w.czy_poprawny, w.tresc as wariant_tresc "+
+    "from rozwiazania r join pytania p on p.id_testu=r.id_testu join archiwum a on p.id_archiwum = a.id "+
+    "left join odpowiedzi o on (o.id_rozwiazania=r.id and o.id_pytania = p.id) "+
+    "left join warianty w on w.id=o.id_wariantu where r.id={0} ", req.params.id_rozwiazania));
 
     var nazwa_testu = con.query(format("select testy.nazwa, rozwiazania.id from rozwiazania inner join testy on rozwiazania.id_testu=testy.id where rozwiazania.id={0} ", req.params.id_rozwiazania))[0].nazwa_testu;
     var model = {
@@ -335,6 +357,28 @@ var usunStudenta = function (req, res) {
     res.redirect('/studenci');
 }
 
+var przypiszTest = function(req, res){
+    var model = {
+        idTestu: req.params.idTestu,
+        studenci: con.query(format("select imie, nazwisko, kierunek, nazwa, numer_indeksu, (select count(1) from test_studenta ts where ts.id_testu = {0} and nazwa_uzytkownika = nazwa) as czy_przypisany from uzytkownicy where not exists (select 1 from rozwiazania r where r.nazwa_uzutkownika = nazwa and r.id_testu = {0})",req.params.idTestu)),
+    }
+    ejs.renderFile("Views\\przypiszTest.ejs", model, function (err, str) { if (err) throw err; res.send(str); })
+
+}
+
+var przypiszStudentow = function(req, res){
+    req.body.studenci.forEach(student => {
+    if(student.czy_przypisany){
+        if(con.query(format("select 1 from test_studenta where nazwa_uzytkownika ='{0}' and id_testu = {1}",student.nazwa, req.body.idTestu)).length == 0){
+            con.query(format("insert into test_studenta (nazwa_uzytkownika,id_testu) values ('{0}',{1})",student.nazwa, req.body.idTestu));
+        }
+    }else{
+        con.query(format("delete from test_studenta where nazwa_uzytkownika = '{0}' and id_testu={1}",student.nazwa, req.body.idTestu));
+    }
+});
+res.redirect("/");
+}
+
 app.get('/', czyZalogowany, stronaGlowna);
 app.get('/wyniki/:idTestu', czyZalogowany, wyniki);
 app.get('/dodajPytanie/:id', czyZalogowany, dodajPytanie);
@@ -353,6 +397,11 @@ app.get('/zobaczWynikiStudent/:id_rozwiazania', czyZalogowany, zobaczWynikiStude
 app.get('/studenci', czyZalogowany, studenci);
 app.post('/importujStudentow', czyZalogowany, importujStudentow)
 app.get('/usunStudenta/:nazwa', czyZalogowany, usunStudenta)
+app.post('/zmienHaslo', zmienHaslo)
+app.get('/zmianaHasla', zmianaHasla)
+app.get('/przypiszTest/:idTestu',czyZalogowany, przypiszTest)
+app.post('/przypiszStudentow', czyZalogowany, przypiszStudentow)
+
 app.post('/login',
     passport.authenticate('local', { failureRedirect: '/logowanie' }),
     function (req, res) {
