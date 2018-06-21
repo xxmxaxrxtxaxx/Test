@@ -3,21 +3,22 @@
 
 <head>
     <%include head.ejs%>
-        <title>Zmiana hasła</title>
+        <title>Pierwsze logowanie</title>
 </head>
 
 <body>
     <%include navbar.ejs%>
         <div class="container body-content">
             <div class="row">
-            <form action="/zmienHaslo" method="post">
+            <form action="/ustawHaslo" method="post">
                 <div class="form-horizontal">
-                    <h4>Zmiana hasła</h4>
+                    <h4>Pierwsze logowanie</h4>
                     <div class="form-group">
-                        <label class="control-label col-md-3" for="haslo">Stare hasło</label>
+                        <label class="control-label col-md-3" for="Nazwa">Nr indeksu</label>
                         <div class="col-md-4">
-                            <input class="form-control" data-val="true" data-val-required="haslo jest wymagane." id="haslo" name="haslo" type="password">
-                            <span class="field-validation-valid text-danger" data-valmsg-for="haslo" data-valmsg-replace="true"></span>
+                            <input class="form-control" data-val="true" data-val-required="Nr indeksu jest wymagany." id="nazwa" name="nazwa"
+                                type="text" value="">
+                            <span class="field-validation-valid text-danger" data-valmsg-for="nazwa" data-valmsg-replace="true"></span>
                         </div>
                     </div>
                     <div class="form-group">
@@ -35,7 +36,7 @@
                         </div>
                     </div>
                 </div>
-                <input class="btn btn-default col-md-offset-3" type="submit" value="Zmień hasło">
+                <input class="btn btn-default col-md-offset-3" type="submit" value="Ustaw hasło">
             </form>
         </div>
             

@@ -1,2 +1,3 @@
-Zenek,Martyniuk,z,z,1234,Informatyka
-Stefan,Kolaska,s,s,324,Fizyka
+1234,Zenek,Martyniuk
+324,Stefan,Kolaska
+253,Jescze,Ktośinny
