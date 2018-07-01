@@ -21,25 +21,16 @@
                         <div class="form-group">
                             <label class="control-label col-md-3" for="zamkniete">pytanie zamknięte</label>
                             <input type="radio" id="zamkniete" value="zamkniete" name="typ" class="col-md-4" />
-                        </div>
+                        </div>                        
 
-                        <div class="form-group archiwum">
-                            <label class="control-label col-md-3" for="archiwum">Treść pytania</label>
-                            <select id="archiwum" name="id_archiwum" form="dodaj-pytanie" class="col-md-4">
-                                <% for(var i=0; i<archiwalne.length; i++){%>
-                                    <option value="<%=archiwalne[i].id%>"><%=archiwalne[i].tresc%></option>
-                                <%}%>
-                            </select>
-                        </div>
-
-                        <div class="form-group nie-archiwum">
+                        <div class="form-group">
                             <label class="control-label col-md-3" for="tresc">Treść pytania</label>
                             <textarea type="text" value="" id="tresc" name="tresc" rows="5" class="col-md-4"></textarea>
                         </div>
 
-                        <div class="form-group nie-archiwum">
+                        <div class="form-group">
                             <label class="control-label col-md-3" for="punkty">Ilość punktów za pytanie</label>
-                            <input type="number" min="0" step="1" value="" id="punkty" name="punkty" class="col-md-4" />
+                            <input type="number" min="1" step="1" value="1" id="punkty" name="punkty" class="col-md-4" />
                         </div>
 
                         <div class="zamkniete">
@@ -79,20 +70,11 @@
 
                     $('input[name="typ"]').on('change', function () {
                         if ($('#opisowe').is(':checked')) {
-                            $('.nie-archiwum').show();
                             $('.zamkniete').hide();
-                            $('.archiwum').hide();
                         }
                         if ($('#zamkniete').is(':checked')) {
-                            $('.nie-archiwum').show();
                             $('.zamkniete').show();
-                            $('.archiwum').hide();
-                        }
-                        if ($('#archiwum').is(':checked')) {
-                            $('.nie-archiwum').hide();
-                            $('.zamkniete').hide();
-                            $('.archiwum').show();
-                        }                        
+                        }                                             
                     })
 
                     $('input[name="typ"]').trigger('change');
