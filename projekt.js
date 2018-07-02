@@ -387,13 +387,13 @@ var studenci = function (req, res) {
 
 var importujStudentow = function (req, res) {
     if (req.files) {
-        var linie = req.files.plik.data.toString('utf8').split('\r');
+        var linie = req.files.plik.data.toString('utf8').split('\r\n');
         if (linie.length > 0) {
             linie.forEach(linia => {
                 var kolumny = linia.split(',');
                 if (kolumny.length == 3) {
                     con.query(format("insert into uzytkownicy (nazwa,imie,nazwisko,haslo,numer_indeksu,czy_wykladowca) values ('{0}','{1}','{2}','',{0},0)",
-                        kolumny[0], kolumny[1], kolumny[2]))
+                        kolumny[0].trim(), kolumny[1].trim(), kolumny[2].trim()))
                 }
             });
         }
